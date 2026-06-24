@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이디어스 정산 대시보드 · 꽃밥이야기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #f8f7f4;
+  --surface: #ffffff;
+  --surface2: #f2f0ec;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1a1916;
+  --text2: #6b6860;
+  --text3: #9e9b95;
+  --green: #1D9E75;
+  --green-bg: #EAF6F0;
+  --amber: #BA7517;
+  --amber-bg: #FDF3E0;
+  --red: #A32D2D;
+  --red-bg: #FCEBEB;
+  --blue: #185FA5;
+  --blue-bg: #EBF3FB;
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161614;
+    --surface: #1f1e1c;
+    --surface2: #2a2927;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --text2: #a09d97;
+    --text3: #6b6860;
+    --green: #2DC890;
+    --green-bg: #0d3322;
+    --amber: #EF9F27;
+    --amber-bg: #2e1f05;
+    --red: #E24B4A;
+    --red-bg: #2d0e0e;
+    --blue: #5DA6F0;
+    --blue-bg: #0d2340;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+.header-logo { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.header-logo span { font-size: 18px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+/* YEAR FILTER */
+.year-filter { display: flex; align-items: center; gap: 4px; background: var(--surface2); border-radius: 20px; padding: 3px; }
+.year-btn { font-size: 12px; font-weight: 500; padding: 4px 14px; border-radius: 16px; border: none; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.year-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.year-btn:hover:not(.active) { color: var(--text); }
+
+/* UPLOAD SECTION */
+.upload-section { margin: 20px 24px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.upload-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; }
+.upload-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.upload-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.toggle-icon { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.toggle-icon.open { transform: rotate(180deg); }
+.upload-body { border-top: 0.5px solid var(--border); padding: 16px 18px; display: none; }
+.upload-body.open { display: block; }
+
+.drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
+.drop-zone:hover, .drop-zone.dragging { border-color: var(--green); background: var(--green-bg); }
+.drop-icon { font-size: 28px; margin-bottom: 8px; }
+.drop-label { font-size: 13px; color: var(--text2); }
+.drop-label b { color: var(--green); font-weight: 600; }
+.drop-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.file-input { display: none; }
+
+.file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.file-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; }
+.file-item-left { display: flex; align-items: center; gap: 8px; }
+.file-icon { font-size: 18px; }
+.file-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.file-size { font-size: 11px; color: var(--text3); }
+.file-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+.file-status.ok { background: var(--green-bg); color: var(--green); }
+.file-status.err { background: var(--red-bg); color: var(--red); }
+.file-remove { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+.file-remove:hover { background: var(--surface2); color: var(--red); }
+
+.parse-btn { width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; transition: opacity 0.15s; }
+.parse-btn:hover { opacity: 0.88; }
+.parse-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* MAIN */
+.main { padding: 0 24px 40px; }
+
+/* SUMMARY CARDS */
+.section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; margin-top: 20px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.metric-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.metric-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
+.metric-value { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.metric-value.green { color: var(--green); }
+.metric-value.amber { color: var(--amber); }
+.metric-value.red { color: var(--red); }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* CHARTS */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 20px; }
+@media (max-width: 680px) { .chart-row { grid-template-columns: 1fr; } }
+.chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+.chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.chart-wrap { position: relative; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.leg-sq { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* TABLES */
+.table-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+.table-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); overflow-x: auto; }
+.ttab { font-size: 12px; font-weight: 500; padding: 10px 18px; border: none; background: transparent; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+.ttab.active { color: var(--green); border-bottom-color: var(--green); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { font-size: 10px; font-weight: 600; color: var(--text3); text-align: left; padding: 10px 14px; background: var(--surface2); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); white-space: nowrap; }
+tr:hover td { background: var(--surface2); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+.badge-g { background: var(--green-bg); color: var(--green); }
+.badge-a { background: var(--amber-bg); color: var(--amber); }
+.badge-r { background: var(--red-bg); color: var(--red); }
+
+/* EMPTY */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 13px; }
+.empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+/* NO DATA */
+.no-year-data { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 48px 20px; text-align: center; color: var(--text3); font-size: 13px; margin-bottom: 20px; }
+
+@media (max-width: 540px) {
+  .header { padding: 0 14px; }
+  .main { padding: 0 14px 40px; }
+  .upload-section { margin: 14px; }
+  .card-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <span>🌸</span> 아이디어스 정산 대시보드
+  </div>
+  <div class="header-right">
+    <div class="year-filter" id="yearFilter"></div>
+  </div>
+</header>
+
+<!-- 정산서 업로드 -->
+<div class="upload-section">
+  <div class="upload-header" onclick="toggleUpload()">
+    <div class="upload-title">
+      <div class="dot"></div>
+      정산서 업로드
+    </div>
+    <div class="toggle-icon" id="toggleIcon">▼</div>
+  </div>
+  <div class="upload-body" id="uploadBody">
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-icon">📂</div>
+      <div class="drop-label"><b>클릭하거나 파일을 드래그</b>하여 추가</div>
+      <div class="drop-sub">아이디어스 정산 엑셀 파일 (.xlsx) · 여러 파일 동시 추가 가능</div>
+      <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
+    <div id="parseStatus" style="font-size:11px; color:var(--text3); margin-top:8px; text-align:center;"></div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="section-label" id="sectionLabel">전체 요약</div>
+  <div class="card-grid" id="summaryCards"></div>
+  <div class="chart-row">
+    <div class="chart-card">
+      <div class="chart-title">월별 매출 추이</div>
+      <div class="chart-legend">
+        <div class="leg"><div class="leg-sq" style="background:#378ADD"></div>판매금액</div>
+        <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>정산금액</div>
+        <div class="leg"><div class="leg-sq" style="background:#EF9F27"></div>수수료</div>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="monthlyChart" role="img" aria-label="월별 매출 추이">월별 판매·정산·수수료 차트</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">상품별 매출 비중</div>
+      <div id="productLegend" class="chart-legend"></div>
+      <div class="chart-wrap" style="height:190px"><canvas id="productChart" role="img" aria-label="상품별 매출 비중">상품별 도넛차트</canvas></div>
+    </div>
+  </div>
+  <div class="table-card">
+    <div class="table-tabs" id="tableTabs"></div>
+    <div id="tableContent"></div>
+  </div>
+</main>
+
+<script>
+/* ─── 내장 데이터 (최종분석.xlsx 기준) ─── */
+const BUILTIN = {
+  settlements: [
+    {tab:'2026-05-2차', year:'2026', month:'2026-05', sales:57900, fee:11814, settlement:46086, rate:20.4},
+    {tab:'2026-04-2차', year:'2026', month:'2026-04', sales:58800, fee:11998, settlement:46802, rate:20.4},
+    {tab:'2026-04-1차', year:'2026', month:'2026-04', sales:29400, fee:5983,  settlement:23417, rate:20.35},
+    {tab:'2026-03-2차', year:'2026', month:'2026-03', sales:29400, fee:5983,  settlement:23417, rate:20.35},
+    {tab:'2025-12-2차', year:'2025', month:'2025-12', sales:29400, fee:6015,  settlement:23385, rate:20.46},
+    {tab:'2025-10-1차', year:'2025', month:'2025-10', sales:85500, fee:17400, settlement:68100, rate:20.35},
+    {tab:'2025-09-2차', year:'2025', month:'2025-09', sales:86400, fee:17614, settlement:68786, rate:20.39},
+    {tab:'2025-09-1차', year:'2025', month:'2025-09', sales:115800,fee:23597, settlement:92203, rate:20.38},
+    {tab:'2025-08-1차', year:'2025', month:'2025-08', sales:58800, fee:12031, settlement:46769, rate:20.46},
+    {tab:'2025-07-2차', year:'2025', month:'2025-07', sales:87300, fee:17829, settlement:0,     rate:20.42},
+    {tab:'2025-07-1차', year:'2025', month:'2025-07', sales:29400, fee:5983,  settlement:0,     rate:20.35},
+    {tab:'2025-06-1차', year:'2025', month:'2025-06', sales:57000, fee:11600, settlement:0,     rate:20.35},
+  ],
+  products: [
+    {name:'귀한 김부각 60g×3봉', fullName:'꽃밥에피다 귀한 김부각 60g * 3봉', qty:4, sales:114000, cost:51600, profit:62400},
+    {name:'비건식 채개장 500g×3봉', fullName:'꽃밥에피다 비건식 채개장 채식육개장 500gx3봉입', qty:6, sales:176400, cost:46200, profit:130200},
+  ]
+};
+
+let allData = deepClone(BUILTIN);
+let activeYear = '전체';
+let activeTab = 0;
+let charts = {};
+let pendingFiles = [];
+
+function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+const fmt = v => Math.round(v).toLocaleString('ko-KR');
+const pct = v => v.toFixed(2) + '%';
+
+/* ─── 연도 필터 ─── */
+function getYears() {
+  const years = [...new Set(allData.settlements.map(s => s.year))].sort();
+  return ['전체', ...years];
+}
+
+function buildYearFilter() {
+  const years = getYears();
+  const el = document.getElementById('yearFilter');
+  el.innerHTML = years.map(y =>
+    `<button class="year-btn ${y===activeYear?'active':''}" onclick="setYear('${y}')">${y}</button>`
+  ).join('');
+}
+
+function setYear(y) {
+  activeYear = y;
+  buildYearFilter();
+  render();
+}
+
+/* ─── 필터된 데이터 ─── */
+function filtered() {
+  const s = activeYear === '전체' ? allData.settlements : allData.settlements.filter(x => x.year === activeYear);
+  const monthlyMap = {};
+  s.forEach(r => {
+    if (!monthlyMap[r.month]) monthlyMap[r.month] = {month: r.month, sales:0, fee:0, settlement:0};
+    monthlyMap[r.month].sales += r.sales;
+    monthlyMap[r.month].fee += r.fee;
+    monthlyMap[r.month].settlement += r.settlement;
+  });
+  const monthly = Object.values(monthlyMap).sort((a,b) => a.month.localeCompare(b.month));
+
+  const totalSales = s.reduce((a,r) => a+r.sales, 0);
+  const totalFee   = s.reduce((a,r) => a+r.fee, 0);
+  const totalSettle = s.reduce((a,r) => a+r.settlement, 0);
+  const avgRate = totalSales > 0 ? totalFee/totalSales*100 : 0;
+  const months = Object.keys(monthlyMap).length;
+  const monthlyFeeTotal = months * 11000;
+
+  // 상품 필터 (연도가 있으면 해당 정산 탭명에서 상품 재계산은 어려우므로 전체에서 비중으로 추정)
+  const products = activeYear === '전체' ? allData.products : allData.products.map(p => {
+    const ratio = totalSales > 0 ? totalSales / allData.settlements.reduce((a,r)=>a+r.sales,0) : 1;
+    return {...p, sales: Math.round(p.sales * ratio), qty: Math.round(p.qty * ratio), profit: Math.round(p.profit * ratio), cost: Math.round(p.cost * ratio)};
+  });
+
+  return { settlements: s, monthly, totalSales, totalFee, totalSettle, avgRate, monthlyFeeTotal, netSettle: totalSettle - monthlyFeeTotal, products };
+}
+
+/* ─── 렌더 ─── */
+function render() {
+  const d = filtered();
+  const label = activeYear === '전체' ? '전체 기간 요약' : `${activeYear}년 요약`;
+  document.getElementById('sectionLabel').textContent = label;
+
+  renderSummary(d);
+  renderMonthly(d.monthly);
+  renderProduct(d.products);
+  renderTabs(d);
+}
+
+function renderSummary(d) {
+  const cards = [
+    {label:'총 판매금액', value:'₩'+fmt(d.totalSales), cls:'', sub:`정산 ${d.settlements.length}회`},
+    {label:'총 수수료', value:'₩'+fmt(d.totalFee), cls:'amber', sub:`평균 ${pct(d.avgRate)}`},
+    {label:'총 정산금액', value:'₩'+fmt(d.totalSettle), cls:'green', sub:'수취 확정분'},
+    {label:'월 이용료', value:'₩'+fmt(d.monthlyFeeTotal), cls:'amber', sub:`${Math.round(d.monthlyFeeTotal/11000)}개월 × 11,000원`},
+    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), cls: d.netSettle>=0?'green':'red', sub:'정산금 - 이용료'},
+  ];
+  document.getElementById('summaryCards').innerHTML = cards.map(c =>
+    `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value ${c.cls}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
+  ).join('');
+}
+
+function renderMonthly(monthly) {
+  if (charts.monthly) { charts.monthly.destroy(); charts.monthly = null; }
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const tickColor = isDark ? '#6b6860' : '#9e9b95';
+  const labels = monthly.map(m => {
+    const [y, mo] = m.month.split('-');
+    return `'${y.slice(2)} ${mo}월`;
+  });
+  charts.monthly = new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {label:'판매금액', data:monthly.map(m=>m.sales), backgroundColor:'rgba(55,138,221,0.25)', borderColor:'#378ADD', borderWidth:1.5},
+        {label:'정산금액', data:monthly.map(m=>m.settlement), backgroundColor:'rgba(29,158,117,0.25)', borderColor:'#1D9E75', borderWidth:1.5},
+        {label:'수수료',   data:monthly.map(m=>m.fee),        backgroundColor:'rgba(239,159,39,0.25)', borderColor:'#EF9F27', borderWidth:1.5},
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: tickColor, font:{size:11}, autoSkip: false, maxRotation: 40 }, grid: { display: false } },
+        y: { ticks: { color: tickColor, font:{size:11}, callback: v => '₩'+(v/1000).toFixed(0)+'k' }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
+function renderProduct(products) {
+  if (charts.product) { charts.product.destroy(); charts.product = null; }
+  const colors = ['#378ADD','#1D9E75','#EF9F27','#D85A30','#B57BDD'];
+  const total = products.reduce((a,p)=>a+p.sales,0);
+  document.getElementById('productLegend').innerHTML = products.map((p,i) =>
+    `<div class="leg"><div class="leg-sq" style="background:${colors[i%colors.length]}"></div>${p.name} <span style="color:var(--text3)">(${total>0?Math.round(p.sales/total*100):0}%)</span></div>`
+  ).join('');
+  charts.product = new Chart(document.getElementById('productChart'), {
+    type: 'doughnut',
+    data: { labels: products.map(p=>p.name), datasets:[{ data:products.map(p=>p.sales), backgroundColor:colors.slice(0,products.length), borderWidth:2, borderColor:'var(--surface)' }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{display:false}} }
+  });
+}
+
+function renderTabs(d) {
+  const tabs = ['정산서별 내역','월별 상세','상품별 분석'];
+  document.getElementById('tableTabs').innerHTML = tabs.map((t,i) =>
+    `<button class="ttab ${i===activeTab?'active':''}" onclick="switchTab(${i})">${t}</button>`
+  ).join('');
+
+  let html = '';
+  if (activeTab === 0) {
+    html = `<div class="table-wrap"><table>
+      <thead><tr><th>정산 회차</th><th>연도</th><th class="num">판매금액</th><th class="num">수수료+부가세</th><th class="num">정산금액</th><th class="num">수수료율</th><th>상태</th></tr></thead>
+      <tbody>${d.settlements.map(r =>
+        `<tr><td><b>${r.tab}</b></td><td>${r.year}</td>
+        <td class="num">₩${fmt(r.sales)}</td>
+        <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
+        <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
+          ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
+        <td class="num">${pct(r.rate)}</td>
+        <td><span class="badge ${r.settlement>0?'badge-g':'badge-a'}">${r.settlement>0?'정산완료':'대기중'}</span></td>
+        </tr>`
+      ).join('')}
+      </tbody>
+      <tfoot><tr style="font-weight:600">
+        <td colspan="2" style="padding:10px 14px; color:var(--text2)">합계</td>
+        <td class="num" style="padding:10px 14px">₩${fmt(d.totalSales)}</td>
+        <td class="num" style="padding:10px 14px; color:var(--amber)">₩${fmt(d.totalFee)}</td>
+        <td class="num" style="padding:10px 14px; color:var(--green)">₩${fmt(d.totalSettle)}</td>
+        <td class="num" style="padding:10px 14px">${pct(d.avgRate)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table></div>`;
+  } else if (activeTab === 1) {
+    html = `<div class="table-wrap"><table>
+      <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">이용료 차감</th><th class="num">월 실수익</th></tr></thead>
+      <tbody>${d.monthly.map(r => {
+        const net = r.settlement - 11000;
+        return `<tr><td><b>${r.month}</b></td>
+        <td class="num">₩${fmt(r.sales)}</td>
+        <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
+        <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
+          ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
+        <td class="num" style="color:var(--amber)">₩11,000</td>
+        <td class="num" style="color:${r.settlement>0?(net>=0?'var(--green)':'var(--red)'):'var(--text3)'}; font-weight:600">
+          ${r.settlement>0?'₩'+fmt(net):'–'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>`;
+  } else {
+    html = `<div class="table-wrap"><table>
+      <thead><tr><th>상품명</th><th class="num">판매 수량</th><th class="num">매출</th><th class="num">원가 (추정)</th><th class="num">추정 매출이익</th><th class="num">이익률</th></tr></thead>
+      <tbody>${d.products.map(p => {
+        const margin = p.sales > 0 ? Math.round(p.profit/p.sales*100) : 0;
+        return `<tr>
+          <td style="max-width:200px; white-space:normal; line-height:1.4">${p.fullName||p.name}</td>
+          <td class="num">${p.qty}개</td>
+          <td class="num">₩${fmt(p.sales)}</td>
+          <td class="num" style="color:var(--amber)">₩${fmt(p.cost)}</td>
+          <td class="num" style="color:var(--green); font-weight:600">₩${fmt(p.profit)}</td>
+          <td class="num"><span class="badge badge-g">${margin}%</span></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>`;
+  }
+  document.getElementById('tableContent').innerHTML = html;
+}
+
+function switchTab(i) { activeTab = i; render(); }
+
+/* ─── 업로드 토글 ─── */
+function toggleUpload() {
+  const body = document.getElementById('uploadBody');
+  const icon = document.getElementById('toggleIcon');
+  const open = body.classList.toggle('open');
+  icon.classList.toggle('open', open);
+}
+
+/* ─── 파일 처리 ─── */
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragging'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragging');
+  addFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', e => { addFiles([...e.target.files]); fileInput.value=''; });
+
+function addFiles(files) {
+  files.filter(f => f.name.endsWith('.xlsx')).forEach(f => {
+    if (!pendingFiles.find(p => p.file.name === f.name)) {
+      pendingFiles.push({ file: f, status: 'pending' });
+    }
+  });
+  renderFileList();
+}
+
+function renderFileList() {
+  const el = document.getElementById('fileList');
+  if (!pendingFiles.length) { el.innerHTML = ''; document.getElementById('parseBtn').disabled = true; return; }
+  el.innerHTML = pendingFiles.map((p,i) => `
+    <div class="file-item">
+      <div class="file-item-left">
+        <div class="file-icon">📄</div>
+        <div>
+          <div class="file-name">${p.file.name}</div>
+          <div class="file-size">${(p.file.size/1024).toFixed(1)} KB</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${p.status==='ok'?'<span class="file-status ok">✓ 완료</span>':p.status==='err'?'<span class="file-status err">오류</span>':''}
+        <button class="file-remove" onclick="removeFile(${i})" title="제거">✕</button>
+      </div>
+    </div>`
+  ).join('');
+  document.getElementById('parseBtn').disabled = pendingFiles.filter(p=>p.status==='pending').length === 0;
+}
+
+function removeFile(i) {
+  pendingFiles.splice(i, 1);
+  renderFileList();
+}
+
+async function parseAllFiles() {
+  const btn = document.getElementById('parseBtn');
+  btn.disabled = true; btn.textContent = '분석 중...';
+  const status = document.getElementById('parseStatus');
+
+  const newSettlements = [];
+
+  for (let p of pendingFiles) {
+    if (p.status !== 'pending') continue;
+    try {
+      const buf = await p.file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const parsed = parseWorkbook(wb);
+      if (parsed.length) {
+        newSettlements.push(...parsed);
+        p.status = 'ok';
+      } else { p.status = 'err'; }
+    } catch(e) { p.status = 'err'; }
+  }
+
+  if (newSettlements.length) {
+    mergeSettlements(newSettlements);
+    buildYearFilter();
+    render();
+    status.textContent = `✅ ${newSettlements.length}개 정산 회차 추가 완료`;
+  } else {
+    status.textContent = '⚠️ 유효한 정산 데이터를 찾지 못했습니다.';
+  }
+
+  btn.textContent = '📊 정산서 분석하기';
+  btn.disabled = false;
+  renderFileList();
+}
+
+function parseWorkbook(wb) {
+  const results = [];
+  wb.SheetNames.forEach(sname => {
+    if (!sname.match(/^\d{4}-\d{2}/)) return;
+    const ws = wb.Sheets[sname];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
+
+    let salesA=0, feeB=0, feeVat=0, settlementG=0;
+    rows.slice(0,18).forEach(row => {
+      const col1 = String(row[1]||'').trim();
+      const col2 = String(row[2]||'').trim();
+      const val = parseFloat(String(row[3]||'0').replace(/,/g,''))||0;
+      if (col2==='판매금액 (A)') salesA=val;
+      if (col2==='수수료 합계 (B)') feeB=val;
+      if (col1.includes('판매대행 수수료 부가세')) feeVat=val;
+      if (col1.includes('최종 정산 지급금')) settlementG=val;
+      if (col2==='총 거래금액' && !salesA) salesA=val;
+    });
+
+    const fee = feeB + feeVat;
+    const rate = salesA>0 ? Math.round(fee/salesA*10000)/100 : 20.4;
+    const year = sname.substring(0,4);
+    const month = sname.substring(0,7);
+
+    results.push({ tab:sname, year, month, sales:salesA, fee, settlement:settlementG, rate });
+  });
+  return results;
+}
+
+function mergeSettlements(incoming) {
+  incoming.forEach(inc => {
+    const idx = allData.settlements.findIndex(s => s.tab === inc.tab);
+    if (idx >= 0) { allData.settlements[idx] = inc; }
+    else { allData.settlements.push(inc); }
+  });
+  allData.settlements.sort((a,b) => b.tab.localeCompare(a.tab));
+}
+
+/* ─── 초기 렌더 ─── */
+buildYearFilter();
+render();
+</script>
+</body>
+</html>
