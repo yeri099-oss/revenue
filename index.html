@@ -51,10 +51,9 @@
 body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
 /* HEADER */
-.header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-.header-logo { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 20px; height: 56px; position: sticky; top: 0; z-index: 100; }
+.header-logo { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .header-logo span { font-size: 18px; }
-.header-right { display: flex; align-items: center; gap: 10px; }
 
 /* YEAR FILTER */
 .year-filter { display: flex; align-items: center; gap: 4px; background: var(--surface2); border-radius: 20px; padding: 3px; }
@@ -149,6 +148,21 @@ tr:hover td { background: var(--surface2); }
   .upload-section { margin: 14px; }
   .card-grid { grid-template-columns: 1fr 1fr; }
 }
+/* 원가 관리 */
+.cost-section { margin: 0 24px 0; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.cost-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cost-input { flex: 1; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+.cost-input:focus { outline: none; border-color: var(--green); }
+.cost-add-btn { padding: 7px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; white-space: nowrap; }
+.cost-add-btn:hover { opacity: 0.85; }
+.cost-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 6px; font-size: 12px; }
+.cost-item-name { color: var(--text); font-weight: 500; flex: 1; }
+.cost-item-val { color: var(--amber); font-weight: 600; margin: 0 12px; }
+.cost-edit-btn { background: none; border: 0.5px solid var(--border2); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--text2); cursor: pointer; }
+.cost-edit-btn:hover { background: var(--surface); }
+.cost-del-btn { background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; margin-left: 4px; }
+.cost-del-btn:hover { color: var(--red); }
+@media (max-width: 540px) { .cost-section { margin: 0 14px; } }
 </style>
 </head>
 <body>
@@ -157,10 +171,31 @@ tr:hover td { background: var(--surface2); }
   <div class="header-logo">
     <span>🌸</span> 아이디어스 정산 대시보드
   </div>
-  <div class="header-right">
-    <div class="year-filter" id="yearFilter"></div>
-  </div>
+  <div class="year-filter" id="yearFilter"></div>
 </header>
+
+<!-- 원가 관리 -->
+<div class="cost-section">
+  <div class="upload-header" onclick="toggleCost()">
+    <div class="upload-title">
+      <div class="dot" style="background:var(--amber)"></div>
+      원가 관리
+    </div>
+    <div class="toggle-icon" id="costToggleIcon">▼</div>
+  </div>
+  <div class="upload-body" id="costBody">
+    <div id="costList"></div>
+    <div style="margin-top:10px; padding-top:10px; border-top:0.5px solid var(--border)">
+      <div style="font-size:11px; color:var(--text3); margin-bottom:8px; font-weight:500">새 상품 원가 추가</div>
+      <div class="cost-row">
+        <input class="cost-input" id="newCostName" placeholder="상품명 (정산서 작품명과 동일하게)">
+        <input class="cost-input" style="max-width:130px" id="newCostVal" placeholder="원가 (원)" type="number">
+        <button class="cost-add-btn" onclick="addCostItem()">+ 추가</button>
+      </div>
+      <div id="costAddMsg" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
+    </div>
+  </div>
+</div>
 
 <!-- 정산서 업로드 -->
 <div class="upload-section">
@@ -228,11 +263,76 @@ const BUILTIN = {
   ],
   products: [
     {name:'귀한 김부각 60g×3봉', fullName:'꽃밥에피다 귀한 김부각 60g * 3봉', qty:4, sales:114000, cost:51600, profit:62400},
-    {name:'비건식 채개장 500g×3봉', fullName:'꽃밥에피다 비건식 채개장 채식육개장 500gx3봉입', qty:6, sales:176400, cost:46200, profit:130200},
+    {name:'비건식 채개장 500g×3봉', fullName:'꽃밥에피다 비건식 채개장 채식육개장 500gx3봉입', qty:6, sales:176400, cost:138600, profit:37800},
   ]
 };
 
 let allData = deepClone(BUILTIN);
+
+/* ─── 원가 마스터 ─── */
+// key: 정산서 작품명에 포함되는 키워드, value: 세트당 원가
+let costMaster = [
+  {keyword:'김부각', name:'귀한 김부각 60g×3봉', costPerSet:12900},
+  {keyword:'채개장', name:'비건식 채개장 500g×3봉', costPerSet:23100},
+];
+
+function getCostForProduct(fullName) {
+  const match = costMaster.find(c => fullName.includes(c.keyword));
+  return match ? match.costPerSet : null;
+}
+
+function renderCostList() {
+  const el = document.getElementById('costList');
+  if (!costMaster.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0">등록된 원가 없음</div>'; return; }
+  el.innerHTML = costMaster.map((c, i) => `
+    <div class="cost-item">
+      <div class="cost-item-name">${c.name}</div>
+      <div class="cost-item-val">₩${c.costPerSet.toLocaleString('ko-KR')} / 세트</div>
+      <button class="cost-edit-btn" onclick="editCostItem(${i})">수정</button>
+      <button class="cost-del-btn" onclick="delCostItem(${i})" title="삭제">✕</button>
+    </div>`).join('');
+}
+
+function addCostItem() {
+  const name = document.getElementById('newCostName').value.trim();
+  const val = parseInt(document.getElementById('newCostVal').value);
+  const msg = document.getElementById('costAddMsg');
+  if (!name || !val || val <= 0) { msg.textContent = '상품명과 원가를 모두 입력해주세요.'; msg.style.color='var(--red)'; return; }
+  // keyword는 상품명 그대로 사용 (포함 검색)
+  costMaster.push({keyword: name, name: name, costPerSet: val});
+  document.getElementById('newCostName').value = '';
+  document.getElementById('newCostVal').value = '';
+  msg.textContent = '✅ 추가됐어요!'; msg.style.color='var(--green)';
+  setTimeout(() => { msg.textContent = ''; }, 2000);
+  renderCostList();
+  render();
+}
+
+function editCostItem(i) {
+  const c = costMaster[i];
+  const newVal = prompt(`"${c.name}" 원가 수정\n현재: ₩${c.costPerSet.toLocaleString('ko-KR')}\n\n새 원가 입력 (세트당, 원):`);
+  if (newVal === null) return;
+  const parsed = parseInt(newVal.replace(/,/g,''));
+  if (!parsed || parsed <= 0) { alert('올바른 금액을 입력해주세요.'); return; }
+  costMaster[i].costPerSet = parsed;
+  renderCostList();
+  render();
+}
+
+function delCostItem(i) {
+  if (!confirm(`"${costMaster[i].name}" 원가를 삭제할까요?`)) return;
+  costMaster.splice(i, 1);
+  renderCostList();
+  render();
+}
+
+function toggleCost() {
+  const body = document.getElementById('costBody');
+  const icon = document.getElementById('costToggleIcon');
+  const open = body.classList.toggle('open');
+  icon.classList.toggle('open', open);
+}
+
 let activeYear = '전체';
 let activeTab = 0;
 let charts = {};
@@ -281,10 +381,24 @@ function filtered() {
   const months = Object.keys(monthlyMap).length;
   const monthlyFeeTotal = months * 11000;
 
-  // 상품 필터 (연도가 있으면 해당 정산 탭명에서 상품 재계산은 어려우므로 전체에서 비중으로 추정)
-  const products = activeYear === '전체' ? allData.products : allData.products.map(p => {
-    const ratio = totalSales > 0 ? totalSales / allData.settlements.reduce((a,r)=>a+r.sales,0) : 1;
-    return {...p, sales: Math.round(p.sales * ratio), qty: Math.round(p.qty * ratio), profit: Math.round(p.profit * ratio), cost: Math.round(p.cost * ratio)};
+  // 상품별 집계 — costMaster 기반으로 원가/이익 재계산
+  const productMap = {};
+  s.forEach(r => {
+    // BUILTIN products 중 이 정산 회차와 매칭되는 상품 찾기
+    allData.products.forEach(p => {
+      const key = p.fullName || p.name;
+      if (!productMap[key]) productMap[key] = {name:p.name, fullName:p.fullName||p.name, qty:0, sales:0};
+    });
+  });
+  // BUILTIN products를 연도 필터 비율로 추정
+  const baseSales = allData.settlements.reduce((a,r)=>a+r.sales,0);
+  const ratio = baseSales > 0 ? totalSales / baseSales : 1;
+  const products = allData.products.map(p => {
+    const qty = Math.round(p.qty * ratio);
+    const sales = Math.round(p.sales * ratio);
+    const costEntry = costMaster.find(c => (p.fullName||p.name).includes(c.keyword));
+    const cost = costEntry ? qty * costEntry.costPerSet : Math.round(p.cost * ratio);
+    return {...p, qty, sales, cost, profit: sales - cost};
   });
 
   return { settlements: s, monthly, totalSales, totalFee, totalSettle, avgRate, monthlyFeeTotal, netSettle: totalSettle - monthlyFeeTotal, products };
@@ -305,10 +419,9 @@ function render() {
 function renderSummary(d) {
   const cards = [
     {label:'총 판매금액', value:'₩'+fmt(d.totalSales), cls:'', sub:`정산 ${d.settlements.length}회`},
-    {label:'총 수수료', value:'₩'+fmt(d.totalFee), cls:'amber', sub:`평균 ${pct(d.avgRate)}`},
     {label:'총 정산금액', value:'₩'+fmt(d.totalSettle), cls:'green', sub:'수취 확정분'},
-    {label:'월 이용료', value:'₩'+fmt(d.monthlyFeeTotal), cls:'amber', sub:`${Math.round(d.monthlyFeeTotal/11000)}개월 × 11,000원`},
-    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), cls: d.netSettle>=0?'green':'red', sub:'정산금 - 이용료'},
+    {label:'총 수수료', value:'₩'+fmt(d.totalFee), cls:'amber', sub:`평균 ${pct(d.avgRate)}`},
+    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), cls: d.netSettle>=0?'green':'red', sub:'정산금 - 연이용료'},
   ];
   document.getElementById('summaryCards').innerHTML = cards.map(c =>
     `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value ${c.cls}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
@@ -339,7 +452,7 @@ function renderMonthly(monthly) {
       plugins: { legend: { display: false } },
       scales: {
         x: { ticks: { color: tickColor, font:{size:11}, autoSkip: false, maxRotation: 40 }, grid: { display: false } },
-        y: { ticks: { color: tickColor, font:{size:11}, callback: v => '₩'+(v/1000).toFixed(0)+'k' }, grid: { color: gridColor } }
+        y: { ticks: { color: tickColor, font:{size:11}, callback: v => '₩' + v.toLocaleString('ko-KR') }, grid: { color: gridColor } }
       }
     }
   });
@@ -408,7 +521,7 @@ function renderTabs(d) {
     </table></div>`;
   } else {
     html = `<div class="table-wrap"><table>
-      <thead><tr><th>상품명</th><th class="num">판매 수량</th><th class="num">매출</th><th class="num">원가 (추정)</th><th class="num">추정 매출이익</th><th class="num">이익률</th></tr></thead>
+      <thead><tr><th>상품명</th><th class="num">판매 수량</th><th class="num">매출</th><th class="num">원가</th><th class="num">매출이익</th><th class="num">이익률</th></tr></thead>
       <tbody>${d.products.map(p => {
         const margin = p.sales > 0 ? Math.round(p.profit/p.sales*100) : 0;
         return `<tr>
@@ -524,24 +637,38 @@ function parseWorkbook(wb) {
     const ws = wb.Sheets[sname];
     const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
 
-    let salesA=0, feeB=0, feeVat=0, settlementG=0;
-    rows.slice(0,18).forEach(row => {
-      const col1 = String(row[1]||'').trim();
-      const col2 = String(row[2]||'').trim();
+    let salesA=0, feeB=0, feeVat=0, settlement=0;
+    rows.slice(0, 20).forEach(row => {
+      const col1 = String(row[1]||'').replace(/\n/g,' ').trim();
+      const col2 = String(row[2]||'').replace(/\n/g,' ').trim();
       const val = parseFloat(String(row[3]||'0').replace(/,/g,''))||0;
-      if (col2==='판매금액 (A)') salesA=val;
-      if (col2==='수수료 합계 (B)') feeB=val;
-      if (col1.includes('판매대행 수수료 부가세')) feeVat=val;
-      if (col1.includes('최종 정산 지급금')) settlementG=val;
-      if (col2==='총 거래금액' && !salesA) salesA=val;
+
+      // 판매금액(A)
+      if (col2 === '판매금액 (A)') salesA = val;
+
+      // 수수료합계(B)
+      if (col2 === '수수료 합계 (B)') feeB = val;
+
+      // 부가세(C) — 구/신 공통
+      if (col1.includes('판매대행 수수료 부가세')) feeVat = val;
+
+      // 정산금액 — 구버전: "최종 정산 지급금", 신버전: "정산 지급 금액 (A-B-C-D-E)"
+      if (col1.includes('최종 정산 지급금') || col1.includes('정산 지급 금액')) {
+        if (val > 0) settlement = val;
+      }
+
+      // 총거래금액 fallback
+      if (col2 === '총 거래금액' && !salesA) salesA = val;
     });
 
-    const fee = feeB + feeVat;
-    const rate = salesA>0 ? Math.round(fee/salesA*10000)/100 : 20.4;
-    const year = sname.substring(0,4);
-    const month = sname.substring(0,7);
+    if (!salesA) return;
 
-    results.push({ tab:sname, year, month, sales:salesA, fee, settlement:settlementG, rate });
+    const fee = feeB + feeVat;
+    const rate = salesA > 0 ? Math.round(fee / salesA * 10000) / 100 : 20.4;
+    const year = sname.substring(0, 4);
+    const month = sname.substring(0, 7);
+
+    results.push({ tab:sname, year, month, sales:salesA, fee, settlement, rate });
   });
   return results;
 }
@@ -556,6 +683,7 @@ function mergeSettlements(incoming) {
 }
 
 /* ─── 초기 렌더 ─── */
+renderCostList();
 buildYearFilter();
 render();
 </script>
