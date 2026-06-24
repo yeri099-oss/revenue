@@ -756,8 +756,7 @@ function parseSheet(ws, tabName) {
 
     // 모든 (키워드, 값) 조합을 유연하게 탐색
     for (let ci = 1; ci < 4; ci++) {
-      const label = String(row[ci]||'').replace(/
-/g,' ').trim();
+      const label = String(row[ci]||'').replace(/\n/g,' ').trim();
       // 값은 label 바로 다음 열들 중 숫자인 것
       for (let vi = ci+1; vi <= ci+2 && vi < row.length; vi++) {
         const raw = row[vi];
