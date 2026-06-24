@@ -82,11 +82,20 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .file-input { display: none; }
 
 .file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
-.file-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; }
+.file-item { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 6px; }
+.file-item-top { display: flex; align-items: center; justify-content: space-between; }
 .file-item-left { display: flex; align-items: center; gap: 8px; }
-.file-icon { font-size: 18px; }
+.file-icon { font-size: 16px; }
 .file-name { font-size: 12px; font-weight: 500; color: var(--text); }
 .file-size { font-size: 11px; color: var(--text3); }
+.file-date-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.file-date-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.file-date-sel { font-size: 12px; padding: 4px 7px; border: 0.5px solid var(--border2); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; }
+.file-date-sel:focus { outline: none; border-color: var(--green); }
+.file-round-sel { font-size: 12px; padding: 4px 7px; border: 0.5px solid var(--border2); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; }
+.file-round-sel:focus { outline: none; border-color: var(--green); }
+.file-date-ok { font-size: 11px; font-weight: 600; padding: 4px 10px; border: none; border-radius: 6px; background: var(--green); color: #fff; cursor: pointer; white-space: nowrap; }
+.file-date-ok:hover { opacity: 0.85; }
 .file-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
 .file-status.ok { background: var(--green-bg); color: var(--green); }
 .file-status.err { background: var(--red-bg); color: var(--red); }
@@ -638,32 +647,62 @@ fileInput.addEventListener('change', e => { addFiles([...e.target.files]); fileI
 function addFiles(files) {
   files.filter(f => f.name.endsWith('.xlsx')).forEach(f => {
     if (!pendingFiles.find(p => p.file.name === f.name)) {
-      pendingFiles.push({ file: f, status: 'pending' });
+      // 오늘 기준 연도/월 기본값
+      const now = new Date();
+      const defYear = now.getFullYear();
+      const defMonth = String(now.getMonth()+1).padStart(2,'0');
+      pendingFiles.push({ file: f, status: 'pending', year: String(defYear), month: defMonth, round: '1차' });
     }
   });
   renderFileList();
+}
+
+function makeYearOptions(sel) {
+  const cur = new Date().getFullYear();
+  return [cur-1, cur, cur+1].map(y => `<option value="${y}" ${String(y)===sel?'selected':''}>${y}년</option>`).join('');
+}
+function makeMonthOptions(sel) {
+  return Array.from({length:12},(_,i)=>{const m=String(i+1).padStart(2,'0'); return `<option value="${m}" ${m===sel?'selected':''}>${m}월</option>`;}).join('');
 }
 
 function renderFileList() {
   const el = document.getElementById('fileList');
   if (!pendingFiles.length) { el.innerHTML = ''; document.getElementById('parseBtn').disabled = true; return; }
   el.innerHTML = pendingFiles.map((p,i) => `
-    <div class="file-item">
-      <div class="file-item-left">
-        <div class="file-icon">📄</div>
-        <div>
-          <div class="file-name">${p.file.name}</div>
-          <div class="file-size">${(p.file.size/1024).toFixed(1)} KB</div>
+    <div class="file-item" id="fitem-${i}">
+      <div class="file-item-top">
+        <div class="file-item-left">
+          <div class="file-icon">📄</div>
+          <div>
+            <div class="file-name">${p.file.name}</div>
+            <div class="file-size">${(p.file.size/1024).toFixed(1)} KB</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${p.status==='ok'?'<span class="file-status ok">✓ 완료</span>':p.status==='err'?'<span class="file-status err">오류</span>':''}
+          <button class="file-remove" onclick="removeFile(${i})" title="제거">✕</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${p.status==='ok'?'<span class="file-status ok">✓ 완료</span>':p.status==='err'?'<span class="file-status err">오류</span>':''}
-        <button class="file-remove" onclick="removeFile(${i})" title="제거">✕</button>
-      </div>
+      ${p.status!=='ok' ? `
+      <div class="file-date-row">
+        <span class="file-date-label">정산 기간:</span>
+        <select class="file-date-sel" onchange="setFileYear(${i},this.value)">${makeYearOptions(p.year)}</select>
+        <select class="file-date-sel" onchange="setFileMonth(${i},this.value)">${makeMonthOptions(p.month)}</select>
+        <select class="file-round-sel" onchange="setFileRound(${i},this.value)">
+          <option value="1차" ${p.round==='1차'?'selected':''}>1차</option>
+          <option value="2차" ${p.round==='2차'?'selected':''}>2차</option>
+          <option value="3차" ${p.round==='3차'?'selected':''}>3차</option>
+        </select>
+        <span style="font-size:11px;color:var(--text3)">→ <b style="color:var(--text)">${p.year}-${p.month}-${p.round}</b></span>
+      </div>` : ''}
     </div>`
   ).join('');
   document.getElementById('parseBtn').disabled = pendingFiles.filter(p=>p.status==='pending').length === 0;
 }
+
+function setFileYear(i, v) { pendingFiles[i].year = v; renderFileList(); }
+function setFileMonth(i, v) { pendingFiles[i].month = v; renderFileList(); }
+function setFileRound(i, v) { pendingFiles[i].round = v; renderFileList(); }
 
 function removeFile(i) {
   pendingFiles.splice(i, 1);
@@ -682,7 +721,8 @@ async function parseAllFiles() {
     try {
       const buf = await p.file.arrayBuffer();
       const wb = XLSX.read(buf, { type: 'array' });
-      const parsed = parseWorkbook(wb);
+      const tabName = `${p.year}-${p.month}-${p.round}`;
+      const parsed = parseWorkbook(wb, tabName);
       if (parsed.length) {
         newSettlements.push(...parsed);
         p.status = 'ok';
@@ -704,46 +744,48 @@ async function parseAllFiles() {
   renderFileList();
 }
 
-function parseWorkbook(wb) {
-  const results = [];
-  wb.SheetNames.forEach(sname => {
-    if (!sname.match(/^\d{4}-\d{2}/)) return;
-    const ws = wb.Sheets[sname];
-    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
-
-    let salesA=0, feeB=0, feeVat=0, settlement=0;
-    rows.slice(0, 20).forEach(row => {
-      const col1 = String(row[1]||'').replace(/\n/g,' ').trim();
-      const col2 = String(row[2]||'').replace(/\n/g,' ').trim();
-      const val = parseFloat(String(row[3]||'0').replace(/,/g,''))||0;
-
-      // 판매금액(A)
-      if (col2 === '판매금액 (A)') salesA = val;
-
-      // 수수료합계(B)
-      if (col2 === '수수료 합계 (B)') feeB = val;
-
-      // 부가세(C) — 구/신 공통
-      if (col1.includes('판매대행 수수료 부가세')) feeVat = val;
-
-      // 정산금액 — 구버전: "최종 정산 지급금", 신버전: "정산 지급 금액 (A-B-C-D-E)"
-      if (col1.includes('최종 정산 지급금') || col1.includes('정산 지급 금액')) {
-        if (val > 0) settlement = val;
-      }
-
-      // 총거래금액 fallback
-      if (col2 === '총 거래금액' && !salesA) salesA = val;
-    });
-
-    if (!salesA) return;
-
-    const fee = feeB + feeVat;
-    const rate = salesA > 0 ? Math.round(fee / salesA * 10000) / 100 : 20.4;
-    const year = sname.substring(0, 4);
-    const month = sname.substring(0, 7);
-
-    results.push({ tab:sname, year, month, sales:salesA, fee, settlement, rate });
+function parseSheet(ws, tabName) {
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
+  let salesA=0, feeB=0, feeVat=0, settlement=0;
+  rows.slice(0, 20).forEach(row => {
+    const col1 = String(row[1]||'').replace(/\n/g,' ').trim();
+    const col2 = String(row[2]||'').replace(/\n/g,' ').trim();
+    const val = parseFloat(String(row[3]||'0').replace(/,/g,''))||0;
+    if (col2 === '판매금액 (A)') salesA = val;
+    if (col2 === '수수료 합계 (B)') feeB = val;
+    if (col1.includes('판매대행 수수료 부가세')) feeVat = val;
+    if (col1.includes('최종 정산 지급금') || col1.includes('정산 지급 금액')) {
+      if (val > 0) settlement = val;
+    }
+    if (col2 === '총 거래금액' && !salesA) salesA = val;
   });
+  if (!salesA) return null;
+  const fee = feeB + feeVat;
+  const rate = salesA > 0 ? Math.round(fee / salesA * 10000) / 100 : 20.4;
+  const year = tabName.substring(0, 4);
+  const month = tabName.substring(0, 7);
+  return { tab:tabName, year, month, sales:salesA, fee, settlement, rate };
+}
+
+function parseWorkbook(wb, tabName) {
+  const results = [];
+  if (tabName) {
+    // 업로드 시 사용자가 날짜를 지정한 경우 — 모든 시트를 단일 정산서로 처리
+    // 시트가 여러 개면 첫 번째 유효한 시트만 사용
+    for (const sname of wb.SheetNames) {
+      const ws = wb.Sheets[sname];
+      const r = parseSheet(ws, tabName);
+      if (r) { results.push(r); break; }
+    }
+  } else {
+    // 기존 방식: 시트명이 날짜 형식인 경우 (날짜 지정 없이 호출 시 fallback)
+    wb.SheetNames.forEach(sname => {
+      if (!sname.match(/^\d{4}-\d{2}/)) return;
+      const ws = wb.Sheets[sname];
+      const r = parseSheet(ws, sname);
+      if (r) results.push(r);
+    });
+  }
   return results;
 }
 
