@@ -61,15 +61,17 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .year-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 .year-btn:hover:not(.active) { color: var(--text); }
 
-/* UPLOAD SECTION */
-.upload-section { margin: 20px 24px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.upload-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; }
-.upload-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
-.upload-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+/* PANEL ROW */
+.panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 24px 0; }
+@media (max-width: 680px) { .panel-row { grid-template-columns: 1fr; } }
+.panel-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; cursor: pointer; user-select: none; }
+.panel-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.panel-dot { width: 7px; height: 7px; border-radius: 50%; }
 .toggle-icon { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
 .toggle-icon.open { transform: rotate(180deg); }
-.upload-body { border-top: 0.5px solid var(--border); padding: 16px 18px; display: none; }
-.upload-body.open { display: block; }
+.panel-body { border-top: 0.5px solid var(--border); padding: 14px 16px; display: none; }
+.panel-body.open { display: block; }
 
 .drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
 .drop-zone:hover, .drop-zone.dragging { border-color: var(--green); background: var(--green-bg); }
@@ -110,14 +112,24 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
 /* CHARTS */
-.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 20px; }
-@media (max-width: 680px) { .chart-row { grid-template-columns: 1fr; } }
-.chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
-.chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; }
+.chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
 .chart-wrap { position: relative; }
-.chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
 .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
 .leg-sq { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+/* 하단 2열: 도넛 + 테이블 */
+.bottom-row { display: grid; grid-template-columns: 280px 1fr; gap: 12px; margin-bottom: 20px; align-items: start; }
+@media (max-width: 780px) { .bottom-row { grid-template-columns: 1fr; } }
+.donut-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+/* 도넛 범례 상품 목록 */
+.prod-legend-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
+.prod-legend-item:last-child { border-bottom: none; }
+.prod-legend-left { display: flex; align-items: center; gap: 7px; }
+.prod-legend-name { color: var(--text); font-weight: 500; }
+.prod-legend-right { text-align: right; }
+.prod-legend-sales { font-weight: 600; color: var(--text); }
+.prod-legend-qty { font-size: 11px; color: var(--text3); margin-top: 1px; }
 
 /* TABLES */
 .table-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
@@ -145,24 +157,29 @@ tr:hover td { background: var(--surface2); }
 @media (max-width: 540px) {
   .header { padding: 0 14px; }
   .main { padding: 0 14px 40px; }
-  .upload-section { margin: 14px; }
+  .panel-row { margin: 14px 14px 0; }
   .card-grid { grid-template-columns: 1fr 1fr; }
 }
-/* 원가 관리 */
-.cost-section { margin: 0 24px 0; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.cost-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.cost-input { flex: 1; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+/* COST / UPLOAD INPUTS */
+.cost-input { width: 100%; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); }
 .cost-input:focus { outline: none; border-color: var(--green); }
-.cost-add-btn { padding: 7px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; white-space: nowrap; }
+.cost-add-btn { padding: 7px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; }
 .cost-add-btn:hover { opacity: 0.85; }
-.cost-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 6px; font-size: 12px; }
+.cost-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 5px; font-size: 12px; }
 .cost-item-name { color: var(--text); font-weight: 500; flex: 1; }
-.cost-item-val { color: var(--amber); font-weight: 600; margin: 0 12px; }
-.cost-edit-btn { background: none; border: 0.5px solid var(--border2); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--text2); cursor: pointer; }
+.cost-item-val { color: var(--amber); font-weight: 600; margin: 0 8px; white-space: nowrap; }
+.cost-edit-btn { background: none; border: 0.5px solid var(--border2); border-radius: 6px; padding: 2px 7px; font-size: 11px; color: var(--text2); cursor: pointer; }
 .cost-edit-btn:hover { background: var(--surface); }
-.cost-del-btn { background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; margin-left: 4px; }
+.cost-del-btn { background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 3px; margin-left: 2px; }
 .cost-del-btn:hover { color: var(--red); }
-@media (max-width: 540px) { .cost-section { margin: 0 14px; } }
+.fee-inline { display: flex; align-items: center; gap: 8px; }
+.fee-val { font-size: 20px; font-weight: 700; color: var(--amber); letter-spacing: -0.02em; cursor: pointer; border-bottom: 1.5px dashed var(--border2); }
+.fee-val:hover { color: var(--text); }
+.fee-edit-wrap { display: none; align-items: center; gap: 6px; }
+.fee-edit-wrap.show { display: flex; }
+.fee-edit-input { width: 110px; padding: 4px 8px; font-size: 14px; font-weight: 600; border: 0.5px solid var(--green); border-radius: 6px; background: var(--surface); color: var(--text); }
+.fee-edit-ok { padding: 4px 10px; font-size: 12px; font-weight: 600; border: none; border-radius: 6px; background: var(--green); color: #fff; cursor: pointer; }
+.fee-edit-cancel { padding: 4px 8px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -174,73 +191,90 @@ tr:hover td { background: var(--surface2); }
   <div class="year-filter" id="yearFilter"></div>
 </header>
 
-<!-- 원가 관리 -->
-<div class="cost-section">
-  <div class="upload-header" onclick="toggleCost()">
-    <div class="upload-title">
-      <div class="dot" style="background:var(--amber)"></div>
-      원가 관리
+<!-- 패널 2칸 -->
+<div class="panel-row">
+  <!-- 상품 관리 -->
+  <div class="panel-box">
+    <div class="panel-header" onclick="togglePanel('costBody','costToggle')">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>상품 관리</div>
+      <div class="toggle-icon" id="costToggle">▼</div>
     </div>
-    <div class="toggle-icon" id="costToggleIcon">▼</div>
-  </div>
-  <div class="upload-body" id="costBody">
-    <div id="costList"></div>
-    <div style="margin-top:10px; padding-top:10px; border-top:0.5px solid var(--border)">
-      <div style="font-size:11px; color:var(--text3); margin-bottom:8px; font-weight:500">새 상품 원가 추가</div>
-      <div class="cost-row">
-        <input class="cost-input" id="newCostName" placeholder="상품명 (정산서 작품명과 동일하게)">
-        <input class="cost-input" style="max-width:130px" id="newCostVal" placeholder="원가 (원)" type="number">
-        <button class="cost-add-btn" onclick="addCostItem()">+ 추가</button>
+    <div class="panel-body" id="costBody">
+      <div id="costList"></div>
+      <div style="margin-top:10px; padding-top:10px; border-top:0.5px solid var(--border)">
+        <div style="font-size:11px; color:var(--text3); margin-bottom:8px; font-weight:500">새 상품 원가 추가</div>
+        <div style="display:flex; gap:6px; margin-bottom:6px">
+          <input class="cost-input" id="newCostName" placeholder="상품명 키워드">
+          <input class="cost-input" style="max-width:110px" id="newCostVal" placeholder="원가(원)" type="number">
+        </div>
+        <button class="cost-add-btn" style="width:100%" onclick="addCostItem()">+ 추가</button>
+        <div id="costAddMsg" style="font-size:11px; color:var(--text3); margin-top:5px;"></div>
       </div>
-      <div id="costAddMsg" style="font-size:11px; color:var(--text3); margin-top:4px;"></div>
     </div>
   </div>
-</div>
-
-<!-- 정산서 업로드 -->
-<div class="upload-section">
-  <div class="upload-header" onclick="toggleUpload()">
-    <div class="upload-title">
-      <div class="dot"></div>
-      정산서 업로드
+  <!-- 정산서 -->
+  <div class="panel-box">
+    <div class="panel-header" onclick="togglePanel('uploadBody','uploadToggle')">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>정산서</div>
+      <div class="toggle-icon" id="uploadToggle">▼</div>
     </div>
-    <div class="toggle-icon" id="toggleIcon">▼</div>
-  </div>
-  <div class="upload-body" id="uploadBody">
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <div class="drop-icon">📂</div>
-      <div class="drop-label"><b>클릭하거나 파일을 드래그</b>하여 추가</div>
-      <div class="drop-sub">아이디어스 정산 엑셀 파일 (.xlsx) · 여러 파일 동시 추가 가능</div>
-      <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+    <div class="panel-body" id="uploadBody">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label"><b>클릭 또는 드래그</b>하여 추가</div>
+        <div class="drop-sub">.xlsx · 여러 파일 동시 가능</div>
+        <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+      </div>
+      <div class="file-list" id="fileList"></div>
+      <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
+      <div id="parseStatus" style="font-size:11px; color:var(--text3); margin-top:8px; text-align:center;"></div>
     </div>
-    <div class="file-list" id="fileList"></div>
-    <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
-    <div id="parseStatus" style="font-size:11px; color:var(--text3); margin-top:8px; text-align:center;"></div>
   </div>
 </div>
 
 <main class="main">
   <div class="section-label" id="sectionLabel">전체 요약</div>
   <div class="card-grid" id="summaryCards"></div>
-  <div class="chart-row">
-    <div class="chart-card">
-      <div class="chart-title">월별 매출 추이</div>
-      <div class="chart-legend">
-        <div class="leg"><div class="leg-sq" style="background:#378ADD"></div>판매금액</div>
-        <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>정산금액</div>
-        <div class="leg"><div class="leg-sq" style="background:#EF9F27"></div>수수료</div>
+
+  <!-- 월이용료 카드 -->
+  <div style="margin-bottom:12px">
+    <div class="metric-card" style="display:inline-flex; flex-direction:column; min-width:220px">
+      <div class="metric-label">현재 적용 월 이용료</div>
+      <div class="fee-inline">
+        <div class="fee-val" id="feeDisplay" onclick="startFeeEdit()" title="클릭하여 수정">₩11,000</div>
+        <div class="fee-edit-wrap" id="feeEditWrap">
+          <input class="fee-edit-input" id="feeEditInput" type="number" value="11000">
+          <button class="fee-edit-ok" onclick="saveFee()">저장</button>
+          <button class="fee-edit-cancel" onclick="cancelFee()">취소</button>
+        </div>
+        <span style="font-size:11px; color:var(--text3)">/월</span>
       </div>
-      <div class="chart-wrap" style="height:220px"><canvas id="monthlyChart" role="img" aria-label="월별 매출 추이">월별 판매·정산·수수료 차트</canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">상품별 매출 비중</div>
-      <div id="productLegend" class="chart-legend"></div>
-      <div class="chart-wrap" style="height:190px"><canvas id="productChart" role="img" aria-label="상품별 매출 비중">상품별 도넛차트</canvas></div>
+      <div class="metric-sub">클릭하면 수정할 수 있어요</div>
     </div>
   </div>
-  <div class="table-card">
-    <div class="table-tabs" id="tableTabs"></div>
-    <div id="tableContent"></div>
+
+  <!-- 월별 매출 추이 (풀폭) -->
+  <div class="chart-card">
+    <div class="chart-title">월별 매출 추이</div>
+    <div class="chart-legend">
+      <div class="leg"><div class="leg-sq" style="background:#378ADD"></div>판매금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>정산금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#EF9F27"></div>수수료</div>
+    </div>
+    <div class="chart-wrap" style="height:220px"><canvas id="monthlyChart" role="img" aria-label="월별 매출 추이">월별 판매·정산·수수료 차트</canvas></div>
+  </div>
+
+  <!-- 하단: 도넛(좌) + 테이블(우) -->
+  <div class="bottom-row">
+    <div class="donut-card">
+      <div class="chart-title">상품별 매출 비중</div>
+      <div class="chart-wrap" style="height:160px"><canvas id="productChart" role="img" aria-label="상품별 매출 비중">상품별 도넛차트</canvas></div>
+      <div id="productLegend" style="margin-top:12px"></div>
+    </div>
+    <div class="table-card" style="margin-bottom:0">
+      <div class="table-tabs" id="tableTabs"></div>
+      <div id="tableContent"></div>
+    </div>
   </div>
 </main>
 
@@ -268,6 +302,7 @@ const BUILTIN = {
 };
 
 let allData = deepClone(BUILTIN);
+let monthlyFee = 11000;
 
 /* ─── 원가 마스터 ─── */
 // key: 정산서 작품명에 포함되는 키워드, value: 세트당 원가
@@ -326,9 +361,9 @@ function delCostItem(i) {
   render();
 }
 
-function toggleCost() {
-  const body = document.getElementById('costBody');
-  const icon = document.getElementById('costToggleIcon');
+function togglePanel(bodyId, iconId) {
+  const body = document.getElementById(bodyId);
+  const icon = document.getElementById(iconId);
   const open = body.classList.toggle('open');
   icon.classList.toggle('open', open);
 }
@@ -341,6 +376,27 @@ let pendingFiles = [];
 function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 const fmt = v => Math.round(v).toLocaleString('ko-KR');
 const pct = v => v.toFixed(2) + '%';
+
+/* ─── 월이용료 인라인 수정 ─── */
+function startFeeEdit() {
+  document.getElementById('feeDisplay').style.display = 'none';
+  const wrap = document.getElementById('feeEditWrap');
+  wrap.classList.add('show');
+  document.getElementById('feeEditInput').value = monthlyFee;
+  document.getElementById('feeEditInput').focus();
+}
+function saveFee() {
+  const v = parseInt(document.getElementById('feeEditInput').value);
+  if (!v || v < 0) { alert('올바른 금액을 입력해주세요.'); return; }
+  monthlyFee = v;
+  document.getElementById('feeDisplay').textContent = '₩' + v.toLocaleString('ko-KR');
+  cancelFee();
+  render();
+}
+function cancelFee() {
+  document.getElementById('feeDisplay').style.display = '';
+  document.getElementById('feeEditWrap').classList.remove('show');
+}
 
 /* ─── 연도 필터 ─── */
 function getYears() {
@@ -379,7 +435,7 @@ function filtered() {
   const totalSettle = s.reduce((a,r) => a+r.settlement, 0);
   const avgRate = totalSales > 0 ? totalFee/totalSales*100 : 0;
   const months = Object.keys(monthlyMap).length;
-  const monthlyFeeTotal = months * 11000;
+  const monthlyFeeTotal = months * monthlyFee;
 
   // 상품별 집계 — costMaster 기반으로 원가/이익 재계산
   const productMap = {};
@@ -462,14 +518,28 @@ function renderProduct(products) {
   if (charts.product) { charts.product.destroy(); charts.product = null; }
   const colors = ['#378ADD','#1D9E75','#EF9F27','#D85A30','#B57BDD'];
   const total = products.reduce((a,p)=>a+p.sales,0);
-  document.getElementById('productLegend').innerHTML = products.map((p,i) =>
-    `<div class="leg"><div class="leg-sq" style="background:${colors[i%colors.length]}"></div>${p.name} <span style="color:var(--text3)">(${total>0?Math.round(p.sales/total*100):0}%)</span></div>`
-  ).join('');
+
+  // 도넛 차트
   charts.product = new Chart(document.getElementById('productChart'), {
     type: 'doughnut',
     data: { labels: products.map(p=>p.name), datasets:[{ data:products.map(p=>p.sales), backgroundColor:colors.slice(0,products.length), borderWidth:2, borderColor:'var(--surface)' }] },
-    options: { responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{display:false}} }
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{display:false}} }
   });
+
+  // 상세 범례: 상품명 + 금액 + 수량
+  document.getElementById('productLegend').innerHTML = products.map((p,i) => {
+    const share = total > 0 ? Math.round(p.sales/total*100) : 0;
+    return `<div class="prod-legend-item">
+      <div class="prod-legend-left">
+        <div class="leg-sq" style="background:${colors[i%colors.length]}; width:10px; height:10px; border-radius:2px; flex-shrink:0"></div>
+        <div class="prod-legend-name">${p.name}</div>
+      </div>
+      <div class="prod-legend-right">
+        <div class="prod-legend-sales">₩${fmt(p.sales)} <span style="font-size:11px; font-weight:400; color:var(--text3)">(${share}%)</span></div>
+        <div class="prod-legend-qty">${p.qty}세트 판매</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderTabs(d) {
@@ -506,13 +576,13 @@ function renderTabs(d) {
     html = `<div class="table-wrap"><table>
       <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">이용료 차감</th><th class="num">월 실수익</th></tr></thead>
       <tbody>${d.monthly.map(r => {
-        const net = r.settlement - 11000;
+        const net = r.settlement - monthlyFee;
         return `<tr><td><b>${r.month}</b></td>
         <td class="num">₩${fmt(r.sales)}</td>
         <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
         <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
           ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
-        <td class="num" style="color:var(--amber)">₩11,000</td>
+        <td class="num" style="color:var(--amber)">₩${fmt(monthlyFee)}</td>
         <td class="num" style="color:${r.settlement>0?(net>=0?'var(--green)':'var(--red)'):'var(--text3)'}; font-weight:600">
           ${r.settlement>0?'₩'+fmt(net):'–'}</td>
         </tr>`;
