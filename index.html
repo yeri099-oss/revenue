@@ -748,31 +748,34 @@ function parseSheet(ws, tabName) {
   const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
   let salesA=0, feeB=0, feeVat=0, settlement=0;
 
-  rows.slice(0, 20).forEach(row => {
-    // 열 위치 자동 감지: 숫자값이 있는 열을 찾아서 그 앞 두 열을 키로 사용
-    // 구버전: [null, 구분, 항목, 금액] → col1=row[1], col2=row[2], val=row[3]
-    // 신버전: [null, 항목, 금액, ...]  → col1=row[1], val=row[2]
-    const allCells = row.map((v,i) => ({i, v}));
+  const KEYWORDS = ['판매금액 (A)', '수수료 합계 (B)', '판매대행 수수료 부가세',
+                    '최종 정산 지급금', '정산 지급 금액', '총 거래금액'];
 
-    // 모든 (키워드, 값) 조합을 유연하게 탐색
-    for (let ci = 1; ci < 4; ci++) {
+  rows.slice(0, 20).forEach(row => {
+    // 각 셀을 순서대로 보면서 키워드를 찾고, 바로 다음 숫자를 값으로 사용
+    for (let ci = 1; ci < row.length - 1; ci++) {
       const label = String(row[ci]||'').replace(/\n/g,' ').trim();
-      // 값은 label 바로 다음 열들 중 숫자인 것
+      // 이 셀이 키워드인지 확인
+      const isKeyword = KEYWORDS.some(k => label === k || label.includes(k));
+      if (!isKeyword) continue;
+
+      // 키워드 바로 다음 열에서 숫자 찾기
+      let val = null;
       for (let vi = ci+1; vi <= ci+2 && vi < row.length; vi++) {
         const raw = row[vi];
         if (raw === null || raw === undefined || raw === '') continue;
-        const val = parseFloat(String(raw).replace(/,/g,''));
-        if (isNaN(val)) continue;
-
-        if (label === '판매금액 (A)') salesA = val;
-        if (label === '수수료 합계 (B)') feeB = val;
-        if (label.includes('판매대행 수수료 부가세')) feeVat = val;
-        if (label.includes('최종 정산 지급금') || label.includes('정산 지급 금액')) {
-          if (val > 0) settlement = val;
-        }
-        if (label === '총 거래금액' && !salesA) salesA = val;
-        break;
+        const n = parseFloat(String(raw).replace(/,/g,''));
+        if (!isNaN(n)) { val = n; break; }
       }
+      if (val === null) continue;
+
+      if (label === '판매금액 (A)') salesA = val;
+      else if (label === '수수료 합계 (B)') feeB = val;
+      else if (label.includes('판매대행 수수료 부가세')) feeVat = val;
+      else if (label.includes('최종 정산 지급금') || label.includes('정산 지급 금액')) {
+        if (val > 0) settlement = val;
+      }
+      else if (label === '총 거래금액' && !salesA) salesA = val;
     }
   });
 
