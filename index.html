@@ -119,9 +119,9 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
 .leg-sq { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 /* 하단 2열: 도넛 + 테이블 */
-.bottom-row { display: grid; grid-template-columns: 280px 1fr; gap: 12px; margin-bottom: 20px; align-items: start; }
+.bottom-row { display: grid; grid-template-columns: 300px 1fr; gap: 12px; margin-bottom: 20px; align-items: stretch; }
 @media (max-width: 780px) { .bottom-row { grid-template-columns: 1fr; } }
-.donut-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+.donut-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; }
 /* 도넛 범례 상품 목록 */
 .prod-legend-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
 .prod-legend-item:last-child { border-bottom: none; }
@@ -235,23 +235,6 @@ tr:hover td { background: var(--surface2); }
 <main class="main">
   <div class="section-label" id="sectionLabel">전체 요약</div>
   <div class="card-grid" id="summaryCards"></div>
-
-  <!-- 월이용료 카드 -->
-  <div style="margin-bottom:12px">
-    <div class="metric-card" style="display:inline-flex; flex-direction:column; min-width:220px">
-      <div class="metric-label">현재 적용 월 이용료</div>
-      <div class="fee-inline">
-        <div class="fee-val" id="feeDisplay" onclick="startFeeEdit()" title="클릭하여 수정">₩11,000</div>
-        <div class="fee-edit-wrap" id="feeEditWrap">
-          <input class="fee-edit-input" id="feeEditInput" type="number" value="11000">
-          <button class="fee-edit-ok" onclick="saveFee()">저장</button>
-          <button class="fee-edit-cancel" onclick="cancelFee()">취소</button>
-        </div>
-        <span style="font-size:11px; color:var(--text3)">/월</span>
-      </div>
-      <div class="metric-sub">클릭하면 수정할 수 있어요</div>
-    </div>
-  </div>
 
   <!-- 월별 매출 추이 (풀폭) -->
   <div class="chart-card">
@@ -479,9 +462,23 @@ function renderSummary(d) {
     {label:'총 수수료', value:'₩'+fmt(d.totalFee), cls:'amber', sub:`평균 ${pct(d.avgRate)}`},
     {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), cls: d.netSettle>=0?'green':'red', sub:'정산금 - 연이용료'},
   ];
-  document.getElementById('summaryCards').innerHTML = cards.map(c =>
+  const cardHtml = cards.map(c =>
     `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value ${c.cls}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
   ).join('');
+  // 월이용료 카드 (인라인 수정 UI 포함)
+  const feeCard = `<div class="metric-card">
+    <div class="metric-label">월 이용료</div>
+    <div class="fee-inline">
+      <div class="fee-val" id="feeDisplay" onclick="startFeeEdit()" title="클릭하여 수정">₩${fmt(monthlyFee)}</div>
+      <div class="fee-edit-wrap" id="feeEditWrap">
+        <input class="fee-edit-input" id="feeEditInput" type="number" value="${monthlyFee}">
+        <button class="fee-edit-ok" onclick="saveFee()">저장</button>
+        <button class="fee-edit-cancel" onclick="cancelFee()">취소</button>
+      </div>
+    </div>
+    <div class="metric-sub">클릭하여 수정</div>
+  </div>`;
+  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard;
 }
 
 function renderMonthly(monthly) {
@@ -491,7 +488,7 @@ function renderMonthly(monthly) {
   const tickColor = isDark ? '#6b6860' : '#9e9b95';
   const labels = monthly.map(m => {
     const [y, mo] = m.month.split('-');
-    return `'${y.slice(2)} ${mo}월`;
+    return activeYear === '전체' ? `'${y.slice(2)} ${mo}월` : `${mo}월`;
   });
   charts.monthly = new Chart(document.getElementById('monthlyChart'), {
     type: 'bar',
@@ -550,21 +547,28 @@ function renderTabs(d) {
 
   let html = '';
   if (activeTab === 0) {
+    const showYear = activeYear === '전체';
     html = `<div class="table-wrap"><table>
-      <thead><tr><th>정산 회차</th><th>연도</th><th class="num">판매금액</th><th class="num">수수료+부가세</th><th class="num">정산금액</th><th class="num">수수료율</th><th>상태</th></tr></thead>
+      <thead><tr>
+        <th>정산 회차</th>
+        ${showYear ? '<th>연도</th>' : ''}
+        <th class="num">판매금액</th><th class="num">수수료+부가세</th><th class="num">정산금액</th><th class="num">수수료율</th><th>상태</th>
+      </tr></thead>
       <tbody>${d.settlements.map(r =>
-        `<tr><td><b>${r.tab}</b></td><td>${r.year}</td>
-        <td class="num">₩${fmt(r.sales)}</td>
-        <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
-        <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
-          ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
-        <td class="num">${pct(r.rate)}</td>
-        <td><span class="badge ${r.settlement>0?'badge-g':'badge-a'}">${r.settlement>0?'정산완료':'대기중'}</span></td>
+        `<tr>
+          <td><b>${r.tab}</b></td>
+          ${showYear ? `<td>${r.year}</td>` : ''}
+          <td class="num">₩${fmt(r.sales)}</td>
+          <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
+          <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
+            ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
+          <td class="num">${pct(r.rate)}</td>
+          <td><span class="badge ${r.settlement>0?'badge-g':'badge-a'}">${r.settlement>0?'정산완료':'대기중'}</span></td>
         </tr>`
       ).join('')}
       </tbody>
       <tfoot><tr style="font-weight:600">
-        <td colspan="2" style="padding:10px 14px; color:var(--text2)">합계</td>
+        <td colspan="${showYear ? 2 : 1}" style="padding:10px 14px; color:var(--text2)">합계</td>
         <td class="num" style="padding:10px 14px">₩${fmt(d.totalSales)}</td>
         <td class="num" style="padding:10px 14px; color:var(--amber)">₩${fmt(d.totalFee)}</td>
         <td class="num" style="padding:10px 14px; color:var(--green)">₩${fmt(d.totalSettle)}</td>
