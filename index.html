@@ -189,17 +189,99 @@ tr:hover td { background: var(--surface2); }
 .fee-edit-input { width: 110px; padding: 4px 8px; font-size: 14px; font-weight: 600; border: 0.5px solid var(--green); border-radius: 6px; background: var(--surface); color: var(--text); }
 .fee-edit-ok { padding: 4px 10px; font-size: 12px; font-weight: 600; border: none; border-radius: 6px; background: var(--green); color: #fff; cursor: pointer; }
 .fee-edit-cancel { padding: 4px 8px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; }
+
+/* MAIN TABS */
+.main-tabs { display: flex; gap: 2px; }
+.main-tab { font-size: 13px; font-weight: 500; padding: 6px 16px; border: none; border-radius: 8px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.main-tab.active { background: var(--surface2); color: var(--text); font-weight: 600; }
+.main-tab:hover:not(.active) { color: var(--text); }
+
+/* REPORT PAGE */
+#reportPage { display: none; padding: 24px; max-width: 860px; }
+#reportPage.show { display: block; }
+#dashboardPage.hide { display: none; }
+
+.report-year-tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+.ry-btn { font-size: 13px; font-weight: 500; padding: 6px 18px; border: 0.5px solid var(--border2); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.ry-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* REPORT SECTIONS */
+.report-section { margin-bottom: 28px; }
+.report-section-title { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
+
+/* 한줄 요약 카드 */
+.summary-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 10px; }
+.summary-headline { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.6; margin-bottom: 10px; }
+.summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.stag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.stag-g { background: var(--green-bg); color: var(--green); }
+.stag-a { background: var(--amber-bg); color: var(--amber); }
+.stag-r { background: var(--red-bg); color: var(--red); }
+.stag-b { background: var(--blue-bg); color: var(--blue); }
+
+/* KPI 그리드 */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px; }
+.kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
+.kpi-val { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.kpi-val.g { color: var(--green); }
+.kpi-val.a { color: var(--amber); }
+.kpi-val.r { color: var(--red); }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* 수수료 분석 테이블 */
+.fee-analysis { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 10px; }
+.fee-analysis table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.fee-analysis th { font-size: 10px; font-weight: 600; color: var(--text3); padding: 10px 14px; background: var(--surface2); text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
+.fee-analysis td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); }
+.fee-analysis tr:hover td { background: var(--surface2); }
+
+/* 수익성 바 */
+.profit-bar-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+.profit-item { margin-bottom: 16px; }
+.profit-item:last-child { margin-bottom: 0; }
+.profit-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.profit-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.profit-item-detail { font-size: 11px; color: var(--text3); }
+.profit-bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; display: flex; }
+.profit-bar-cost { height: 100%; background: var(--amber); border-radius: 4px 0 0 4px; transition: width 0.4s; }
+.profit-bar-fee { height: 100%; background: #D85A30; transition: width 0.4s; }
+.profit-bar-profit { height: 100%; background: var(--green); border-radius: 0 4px 4px 0; transition: width 0.4s; }
+.profit-bar-legend { display: flex; gap: 12px; margin-top: 6px; }
+.profit-bar-legend span { font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+.profit-bar-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+/* 월별 비교 */
+.month-compare { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.month-compare table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.month-compare th { font-size: 10px; font-weight: 600; color: var(--text3); padding: 10px 14px; background: var(--surface2); text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
+.month-compare td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); }
+.month-compare tr:hover td { background: var(--surface2); }
+
+/* 인사이트 박스 */
+.insight-list { display: flex; flex-direction: column; gap: 8px; }
+.insight-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; display: flex; gap: 10px; align-items: flex-start; }
+.insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.insight-text { font-size: 12px; color: var(--text); line-height: 1.6; }
+.insight-text b { color: var(--text); font-weight: 600; }
+
+@media (max-width: 540px) { #reportPage { padding: 14px; } .main-tab { font-size: 12px; padding: 5px 12px; } }
 </style>
 </head>
 <body>
 
 <header class="header">
   <div class="header-logo">
-    <span>🌸</span> 아이디어스 정산 대시보드
+    <span>🌸</span> 아이디어스
   </div>
-  <div class="year-filter" id="yearFilter"></div>
+  <nav class="main-tabs">
+    <button class="main-tab active" id="tab-dashboard" onclick="switchMainTab('dashboard')">📊 대시보드</button>
+    <button class="main-tab" id="tab-report" onclick="switchMainTab('report')">📋 연도별 보고서</button>
+  </nav>
+  <div class="year-filter" id="yearFilter" style="margin-left:auto"></div>
 </header>
 
+<div id="dashboardPage">
 <!-- 패널 2칸 -->
 <div class="panel-row">
   <!-- 상품 관리 -->
@@ -269,6 +351,12 @@ tr:hover td { background: var(--surface2); }
     </div>
   </div>
 </main>
+</div><!-- /dashboardPage -->
+
+<div id="reportPage">
+  <div class="report-year-tabs" id="reportYearTabs"></div>
+  <div id="reportContent"></div>
+</div>
 
 <script>
 /* ─── 내장 데이터 (최종분석.xlsx 기준) ─── */
@@ -813,6 +901,245 @@ function mergeSettlements(incoming) {
     else { allData.settlements.push(inc); }
   });
   allData.settlements.sort((a,b) => b.tab.localeCompare(a.tab));
+}
+
+
+/* ─── 메인탭 전환 ─── */
+let mainTab = 'dashboard';
+function switchMainTab(tab) {
+  mainTab = tab;
+  document.getElementById('tab-dashboard').classList.toggle('active', tab==='dashboard');
+  document.getElementById('tab-report').classList.toggle('active', tab==='report');
+  document.getElementById('dashboardPage').classList.toggle('hide', tab!=='dashboard');
+  document.getElementById('reportPage').classList.toggle('show', tab==='report');
+  document.getElementById('yearFilter').style.display = tab==='dashboard' ? '' : 'none';
+  if (tab === 'report') renderReport();
+}
+
+/* ─── 연도별 보고서 ─── */
+let reportYear = null;
+
+function renderReport() {
+  const years = [...new Set(allData.settlements.map(s=>s.year))].sort((a,b)=>b-a);
+  if (!reportYear || !years.includes(reportYear)) reportYear = years[0];
+
+  // 연도 탭
+  document.getElementById('reportYearTabs').innerHTML = years.map(y =>
+    `<button class="ry-btn ${y===reportYear?'active':''}" onclick="setReportYear('${y}')">${y}년</button>`
+  ).join('');
+
+  const s = allData.settlements.filter(x => x.year === reportYear);
+  if (!s.length) { document.getElementById('reportContent').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)">해당 연도 데이터 없음</div>'; return; }
+
+  const totalSales  = s.reduce((a,r)=>a+r.sales,0);
+  const totalFee    = s.reduce((a,r)=>a+r.fee,0);
+  const totalSettle = s.reduce((a,r)=>a+r.settlement,0);
+  const avgRate     = totalSales>0 ? totalFee/totalSales*100 : 0;
+
+  // 월별 집계
+  const monthlyMap = {};
+  s.forEach(r => {
+    if (!monthlyMap[r.month]) monthlyMap[r.month]={month:r.month,sales:0,fee:0,settlement:0,rounds:0};
+    monthlyMap[r.month].sales+=r.sales;
+    monthlyMap[r.month].fee+=r.fee;
+    monthlyMap[r.month].settlement+=r.settlement;
+    monthlyMap[r.month].rounds++;
+  });
+  const monthly = Object.values(monthlyMap).sort((a,b)=>a.month.localeCompare(b.month));
+
+  // 최고/최저 월
+  const bySettle = [...monthly].filter(m=>m.settlement>0).sort((a,b)=>b.settlement-a.settlement);
+  const bestMonth  = bySettle[0];
+  const worstMonth = bySettle[bySettle.length-1];
+
+  // 상품별 (비율로 추정)
+  const baseSales = allData.settlements.reduce((a,r)=>a+r.sales,0);
+  const ratio = baseSales>0 ? totalSales/baseSales : 1;
+  const products = allData.products.map(p => {
+    const qty   = Math.round(p.qty*ratio);
+    const sales = Math.round(p.sales*ratio);
+    const ce    = costMaster.find(c=>(p.fullName||p.name).includes(c.keyword));
+    const cost  = ce ? qty*ce.costPerSet : Math.round(p.cost*ratio);
+    const profit = sales-cost;
+    const feeShare = totalSales>0 ? Math.round(totalFee*(sales/totalSales)) : 0;
+    const netProfit = profit - feeShare;
+    const margin = sales>0 ? (netProfit/sales*100) : 0;
+    return {...p, qty, sales, cost, profit, feeShare, netProfit, margin};
+  });
+
+  // 수수료 구성 추정
+  const idus_fee   = Math.round(totalSales * 0.15);
+  const pay_fee    = Math.round(totalFee - idus_fee * 1.1);  // 결제수수료 역산
+  const vat        = Math.round(idus_fee * 0.1);
+
+  // 한줄 요약 생성
+  const netSettle  = totalSettle - s.length * monthlyFee;
+  const trend = monthly.length >= 2 ?
+    monthly[monthly.length-1].sales - monthly[0].sales : 0;
+  const trendText = trend > 0 ? `📈 매출 상승 추세` : trend < 0 ? `📉 매출 하락 추세` : `➡️ 매출 유지`;
+  const topProduct = [...products].sort((a,b)=>b.sales-a.sales)[0];
+  const headline = `${reportYear}년 총 판매금액 ₩${fmt(totalSales)}, 정산금액 ₩${fmt(totalSettle)}. ` +
+    `평균 수수료율 ${avgRate.toFixed(2)}%, 이용료 차감 실수익 ₩${fmt(netSettle)}. ` +
+    `${trendText}, 주력 상품은 ${topProduct?.name||'-'}.`;
+
+  // 수수료율 산정 설명
+  const rateRows = s.map(r => {
+    const idus = Math.round(r.sales*0.15);
+    const vat_ = Math.round(idus*0.1);
+    const pay_ = r.fee - idus - vat_;
+    return `<tr>
+      <td><b>${r.tab}</b></td>
+      <td class="num">₩${fmt(r.sales)}</td>
+      <td class="num">₩${fmt(idus)} <span style="color:var(--text3);font-size:10px">(15%)</span></td>
+      <td class="num">₩${fmt(pay_>0?pay_:0)}</td>
+      <td class="num">₩${fmt(vat_)}</td>
+      <td class="num" style="font-weight:600">₩${fmt(r.fee)}</td>
+      <td class="num"><span class="badge badge-a">${r.rate}%</span></td>
+    </tr>`;
+  }).join('');
+
+  // 월별 비교 행
+  const monthRows = monthly.map((m,i) => {
+    const mo = m.month.slice(5);
+    const prev = monthly[i-1];
+    const diff = prev ? m.sales - prev.sales : null;
+    const diffHtml = diff !== null ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'}; font-size:11px">${diff>=0?'+':''}₩${fmt(diff)}</span>` : '–';
+    const netM = m.settlement - monthlyFee;
+    return `<tr>
+      <td><b>${mo}월</b> <span style="color:var(--text3);font-size:11px">(${m.rounds}회)</span></td>
+      <td class="num">₩${fmt(m.sales)}</td>
+      <td class="num" style="color:var(--amber)">₩${fmt(m.fee)}</td>
+      <td class="num" style="color:${m.settlement>0?'var(--green)':'var(--text3)'}">
+        ${m.settlement>0?'₩'+fmt(m.settlement):'–'}</td>
+      <td class="num">${diffHtml}</td>
+      <td class="num" style="color:${netM>0?'var(--green)':'var(--red)'}; font-weight:600">
+        ${m.settlement>0?'₩'+fmt(netM):'–'}</td>
+    </tr>`;
+  }).join('');
+
+  // 수익성 바
+  const profitBars = products.map(p => {
+    const total = p.sales || 1;
+    const costPct  = Math.round(p.cost/total*100);
+    const feePct   = Math.round(p.feeShare/total*100);
+    const profPct  = Math.max(0, 100-costPct-feePct);
+    const marginCls = p.margin >= 20 ? 'g' : p.margin >= 0 ? 'a' : 'r';
+    return `<div class="profit-item">
+      <div class="profit-item-header">
+        <span class="profit-item-name">${p.name}</span>
+        <span class="profit-item-detail">${p.qty}세트 · 순이익률 <b style="color:var(--${marginCls==='g'?'green':marginCls==='a'?'amber':'red'})">${p.margin.toFixed(1)}%</b></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;font-size:11px">
+        <div style="color:var(--text3)">판매가<br><b style="font-size:13px;color:var(--text)">₩${fmt(p.sales)}</b></div>
+        <div style="color:var(--text3)">원가<br><b style="font-size:13px;color:var(--amber)">₩${fmt(p.cost)}</b></div>
+        <div style="color:var(--text3)">수수료<br><b style="font-size:13px;color:#D85A30">₩${fmt(p.feeShare)}</b></div>
+      </div>
+      <div class="profit-bar-track">
+        <div class="profit-bar-cost" style="width:${costPct}%"></div>
+        <div class="profit-bar-fee" style="width:${feePct}%"></div>
+        <div class="profit-bar-profit" style="width:${profPct}%"></div>
+      </div>
+      <div class="profit-bar-legend">
+        <span><i style="background:var(--amber)"></i>원가 ${costPct}%</span>
+        <span><i style="background:#D85A30"></i>수수료 ${feePct}%</span>
+        <span><i style="background:var(--green)"></i>순이익 ${profPct}%</span>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text2)">
+        세트당 원가 ₩${fmt(costMaster.find(c=>(p.fullName||p.name).includes(c.keyword))?.costPerSet||0)} ·
+        세트당 순이익 <b style="color:${p.margin>=0?'var(--green)':'var(--red)'}">${p.qty>0?'₩'+fmt(Math.round(p.netProfit/p.qty)):'-'}</b>
+      </div>
+    </div>`;
+  }).join('');
+
+  // 인사이트
+  const insights = [];
+  if (bestMonth)  insights.push({icon:'🏆', text:`<b>최고 정산월: ${bestMonth.month.slice(5)}월</b> — 정산금액 ₩${fmt(bestMonth.settlement)}으로 가장 높았어요.`});
+  if (worstMonth && worstMonth !== bestMonth) insights.push({icon:'📌', text:`<b>최저 정산월: ${worstMonth.month.slice(5)}월</b> — 정산금액 ₩${fmt(worstMonth.settlement)}이었어요.`});
+  const lowMargin = products.filter(p=>p.margin<20);
+  if (lowMargin.length) insights.push({icon:'⚠️', text:`<b>${lowMargin.map(p=>p.name).join(', ')}</b>의 순이익률이 20% 미만이에요. 원가 또는 수수료 부담을 검토해보세요.`});
+  insights.push({icon:'💡', text:`수수료율이 회차마다 다른 이유는 <b>결제수단별 결제수수료</b> 차이 때문이에요. 네이버페이(3.6%)·토스(3.5%) 등 결제수단 비중에 따라 0.1~0.2%p 차이가 생겨요.`});
+  insights.push({icon:'📅', text:`월 이용료(₩${fmt(monthlyFee)})가 ${s.length}회차에 걸쳐 총 ₩${fmt(s.length*monthlyFee)} 발생했어요. 연간으로는 ₩${fmt(12*monthlyFee)}이에요.`});
+
+  document.getElementById('reportContent').innerHTML = `
+    <!-- 한줄 요약 -->
+    <div class="report-section">
+      <div class="report-section-title">📝 한줄 요약</div>
+      <div class="summary-box">
+        <div class="summary-headline">${headline}</div>
+        <div class="summary-tags">
+          <span class="stag stag-b">${reportYear}년</span>
+          <span class="stag stag-g">정산 ${s.length}회</span>
+          <span class="stag stag-a">수수료 ${avgRate.toFixed(2)}%</span>
+          <span class="stag ${netSettle>=0?'stag-g':'stag-r'}">실수익 ₩${fmt(netSettle)}</span>
+          ${trend>0?'<span class="stag stag-g">📈 상승세</span>':trend<0?'<span class="stag stag-r">📉 하락세</span>':''}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="report-section">
+      <div class="report-section-title">💰 핵심 지표</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">총 판매금액</div><div class="kpi-val">₩${fmt(totalSales)}</div><div class="kpi-sub">${s.length}회 정산</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 정산금액</div><div class="kpi-val g">₩${fmt(totalSettle)}</div><div class="kpi-sub">수취 확정분</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 수수료</div><div class="kpi-val a">₩${fmt(totalFee)}</div><div class="kpi-sub">평균 ${avgRate.toFixed(2)}%</div></div>
+        <div class="kpi-card"><div class="kpi-label">이용료 차감 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(netSettle)}</div><div class="kpi-sub">정산금 - 연이용료</div></div>
+        <div class="kpi-card"><div class="kpi-label">월 평균 판매금액</div><div class="kpi-val">₩${fmt(Math.round(totalSales/monthly.length))}</div><div class="kpi-sub">${monthly.length}개월</div></div>
+        <div class="kpi-card"><div class="kpi-label">월 평균 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(Math.round(netSettle/monthly.length))}</div><div class="kpi-sub">이용료 차감</div></div>
+      </div>
+    </div>
+
+    <!-- 수수료율 산정 방법 -->
+    <div class="report-section">
+      <div class="report-section-title">🧮 수수료율 산정 방법</div>
+      <div class="insight-list" style="margin-bottom:12px">
+        <div class="insight-item">
+          <div class="insight-icon">📐</div>
+          <div class="insight-text">
+            <b>수수료 구성 = idus 수수료(15%) + 결제수수료(결제수단별) + 부가세(수수료×10%)</b><br>
+            결제수단마다 수수료율이 달라요: 네이버페이 3.6% · 토스 3.5% · 카드사 2~3%대.<br>
+            한 회차에 다양한 결제수단이 섞이면 수수료율이 20.35%~20.46% 사이에서 변동해요.
+          </div>
+        </div>
+      </div>
+      <div class="fee-analysis">
+        <table>
+          <thead><tr><th>정산 회차</th><th class="num">판매금액</th><th class="num">idus수수료</th><th class="num">결제수수료</th><th class="num">부가세</th><th class="num">합계</th><th class="num">실효율</th></tr></thead>
+          <tbody>${rateRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 상품별 수익성 -->
+    <div class="report-section">
+      <div class="report-section-title">📦 상품별 원가 기준 수익성</div>
+      <div class="profit-bar-wrap">${profitBars}</div>
+    </div>
+
+    <!-- 월별 비교 -->
+    <div class="report-section">
+      <div class="report-section-title">📅 월별 상세 비교</div>
+      <div class="month-compare">
+        <table>
+          <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">전월대비</th><th class="num">이용료 차감 실수익</th></tr></thead>
+          <tbody>${monthRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 인사이트 -->
+    <div class="report-section">
+      <div class="report-section-title">💡 인사이트</div>
+      <div class="insight-list">
+        ${insights.map(ins=>`<div class="insight-item"><div class="insight-icon">${ins.icon}</div><div class="insight-text">${ins.text}</div></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function setReportYear(y) {
+  reportYear = y;
+  renderReport();
 }
 
 /* ─── 초기 렌더 ─── */
