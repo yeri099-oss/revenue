@@ -56,10 +56,10 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .header-logo span { font-size: 18px; }
 
 /* YEAR FILTER */
-.year-filter { display: flex; align-items: center; gap: 4px; background: var(--surface2); border-radius: 20px; padding: 3px; }
-.year-btn { font-size: 12px; font-weight: 500; padding: 4px 14px; border-radius: 16px; border: none; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
-.year-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-.year-btn:hover:not(.active) { color: var(--text); }
+.year-filter { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.year-btn { font-size: 12px; font-weight: 500; padding: 5px 16px; border-radius: 20px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.year-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.year-btn:hover:not(.active) { color: var(--text); border-color: var(--text2); }
 
 /* PANEL ROW */
 .panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 24px 0; }
@@ -211,7 +211,7 @@ tr:hover td { background: var(--surface2); }
 
 /* 한줄 요약 카드 */
 .summary-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 10px; }
-.summary-headline { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.6; margin-bottom: 10px; }
+
 .summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .stag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
 .stag-g { background: var(--green-bg); color: var(--green); }
@@ -220,7 +220,9 @@ tr:hover td { background: var(--surface2); }
 .stag-b { background: var(--blue-bg); color: var(--blue); }
 
 /* KPI 그리드 */
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 10px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 10px; }
+@media (max-width: 780px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
 .kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
 .kpi-val { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
@@ -266,6 +268,32 @@ tr:hover td { background: var(--surface2); }
 .insight-text b { color: var(--text); font-weight: 600; }
 
 @media (max-width: 540px) { #reportPage { padding: 14px; } .main-tab { font-size: 12px; padding: 5px 12px; } }
+
+/* 손익분기점 */
+.bep-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.bep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.bep-card { background: var(--surface2); border-radius: var(--radius); padding: 14px; }
+.bep-card-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
+.bep-card-val { font-size: 18px; font-weight: 700; color: var(--text); }
+.bep-card-val.g { color: var(--green); }
+.bep-card-val.a { color: var(--amber); }
+.bep-card-val.r { color: var(--red); }
+.bep-card-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+.bep-progress { margin: 16px 0 10px; }
+.bep-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.bep-track { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+.bep-fill { height: 100%; border-radius: 5px; transition: width 0.5s; }
+.bep-result { background: var(--green-bg); border: 0.5px solid var(--green); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--text); line-height: 1.7; }
+.bep-result b { color: var(--green); }
+.bep-result.warn { background: var(--amber-bg); border-color: var(--amber); }
+.bep-result.warn b { color: var(--amber); }
+.bep-formula { font-size: 11px; color: var(--text3); margin-top: 12px; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); line-height: 1.8; }
+/* 표 컬럼 정렬 */
+.fee-analysis td, .month-compare td { vertical-align: middle; }
+.fee-analysis th, .month-compare th { white-space: nowrap; }
+/* 순이익률 설명 */
+.margin-explain { background: var(--surface2); border-radius: var(--radius); padding: 14px 16px; margin-top: 14px; font-size: 12px; color: var(--text2); line-height: 1.8; }
+.margin-explain b { color: var(--text); }
 </style>
 </head>
 <body>
@@ -923,7 +951,6 @@ function renderReport() {
   const years = [...new Set(allData.settlements.map(s=>s.year))].sort((a,b)=>b-a);
   if (!reportYear || !years.includes(reportYear)) reportYear = years[0];
 
-  // 연도 탭
   document.getElementById('reportYearTabs').innerHTML = years.map(y =>
     `<button class="ry-btn ${y===reportYear?'active':''}" onclick="setReportYear('${y}')">${y}년</button>`
   ).join('');
@@ -931,28 +958,22 @@ function renderReport() {
   const s = allData.settlements.filter(x => x.year === reportYear);
   if (!s.length) { document.getElementById('reportContent').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text3)">해당 연도 데이터 없음</div>'; return; }
 
-  const totalSales  = s.reduce((a,r)=>a+r.sales,0);
-  const totalFee    = s.reduce((a,r)=>a+r.fee,0);
-  const totalSettle = s.reduce((a,r)=>a+r.settlement,0);
-  const avgRate     = totalSales>0 ? totalFee/totalSales*100 : 0;
+  const totalSales   = s.reduce((a,r)=>a+r.sales,0);
+  const totalFee     = s.reduce((a,r)=>a+r.fee,0);
+  const totalSettle  = s.reduce((a,r)=>a+r.settlement,0);
+  const avgRate      = totalSales>0 ? totalFee/totalSales*100 : 0;
 
-  // 월별 집계
   const monthlyMap = {};
   s.forEach(r => {
     if (!monthlyMap[r.month]) monthlyMap[r.month]={month:r.month,sales:0,fee:0,settlement:0,rounds:0};
-    monthlyMap[r.month].sales+=r.sales;
-    monthlyMap[r.month].fee+=r.fee;
-    monthlyMap[r.month].settlement+=r.settlement;
-    monthlyMap[r.month].rounds++;
+    monthlyMap[r.month].sales+=r.sales; monthlyMap[r.month].fee+=r.fee;
+    monthlyMap[r.month].settlement+=r.settlement; monthlyMap[r.month].rounds++;
   });
   const monthly = Object.values(monthlyMap).sort((a,b)=>a.month.localeCompare(b.month));
-
-  // 최고/최저 월
   const bySettle = [...monthly].filter(m=>m.settlement>0).sort((a,b)=>b.settlement-a.settlement);
   const bestMonth  = bySettle[0];
   const worstMonth = bySettle[bySettle.length-1];
 
-  // 상품별 (비율로 추정)
   const baseSales = allData.settlements.reduce((a,r)=>a+r.sales,0);
   const ratio = baseSales>0 ? totalSales/baseSales : 1;
   const products = allData.products.map(p => {
@@ -960,178 +981,301 @@ function renderReport() {
     const sales = Math.round(p.sales*ratio);
     const ce    = costMaster.find(c=>(p.fullName||p.name).includes(c.keyword));
     const cost  = ce ? qty*ce.costPerSet : Math.round(p.cost*ratio);
-    const profit = sales-cost;
-    const feeShare = totalSales>0 ? Math.round(totalFee*(sales/totalSales)) : 0;
+    const profit = sales - cost;
+    const feeShare  = totalSales>0 ? Math.round(totalFee*(sales/totalSales)) : 0;
     const netProfit = profit - feeShare;
-    const margin = sales>0 ? (netProfit/sales*100) : 0;
-    return {...p, qty, sales, cost, profit, feeShare, netProfit, margin};
+    const margin    = sales>0 ? (netProfit/sales*100) : 0;
+    const costPerSet= ce ? ce.costPerSet : 0;
+    const sellPrice = qty>0 ? Math.round(sales/qty) : 0;
+    const netPerSet = qty>0 ? Math.round(netProfit/qty) : 0;
+    return {...p, qty, sales, cost, profit, feeShare, netProfit, margin, costPerSet, sellPrice, netPerSet};
   });
 
-  // 수수료 구성 추정
-  const idus_fee   = Math.round(totalSales * 0.15);
-  const pay_fee    = Math.round(totalFee - idus_fee * 1.1);  // 결제수수료 역산
-  const vat        = Math.round(idus_fee * 0.1);
+  const netSettle = totalSettle - s.length * monthlyFee;
+  const trend = monthly.length>=2 ? monthly[monthly.length-1].sales - monthly[0].sales : 0;
+  const trendTag = trend>0 ? '<span class="stag stag-g">📈 상승세</span>' : trend<0 ? '<span class="stag stag-r">📉 하락세</span>' : '';
+  const topProd = [...products].sort((a,b)=>b.sales-a.sales)[0];
 
-  // 한줄 요약 생성
-  const netSettle  = totalSettle - s.length * monthlyFee;
-  const trend = monthly.length >= 2 ?
-    monthly[monthly.length-1].sales - monthly[0].sales : 0;
-  const trendText = trend > 0 ? `📈 매출 상승 추세` : trend < 0 ? `📉 매출 하락 추세` : `➡️ 매출 유지`;
-  const topProduct = [...products].sort((a,b)=>b.sales-a.sales)[0];
-  const headline = `${reportYear}년 총 판매금액 ₩${fmt(totalSales)}, 정산금액 ₩${fmt(totalSettle)}. ` +
-    `평균 수수료율 ${avgRate.toFixed(2)}%, 이용료 차감 실수익 ₩${fmt(netSettle)}. ` +
-    `${trendText}, 주력 상품은 ${topProduct?.name||'-'}.`;
+  /* ── 한줄 요약 ── */
+  const summaryTags = `
+    <span class="stag stag-b">${reportYear}년</span>
+    <span class="stag stag-g">정산 ${s.length}회</span>
+    <span class="stag stag-a">수수료 ${avgRate.toFixed(2)}%</span>
+    <span class="stag ${netSettle>=0?'stag-g':'stag-r'}">실수익 ₩${fmt(netSettle)}</span>
+    ${trendTag}`;
 
-  // 수수료율 산정 설명
+  /* ── 수수료 분석 표 ── */
   const rateRows = s.map(r => {
     const idus = Math.round(r.sales*0.15);
     const vat_ = Math.round(idus*0.1);
-    const pay_ = r.fee - idus - vat_;
+    const pay_ = Math.max(0, r.fee - idus - vat_);
+    const payRate = r.sales>0 ? (pay_/r.sales*100).toFixed(2) : '-';
     return `<tr>
       <td><b>${r.tab}</b></td>
       <td class="num">₩${fmt(r.sales)}</td>
-      <td class="num">₩${fmt(idus)} <span style="color:var(--text3);font-size:10px">(15%)</span></td>
-      <td class="num">₩${fmt(pay_>0?pay_:0)}</td>
+      <td class="num">₩${fmt(idus)}<span style="color:var(--text3);font-size:10px"> (15%)</span></td>
+      <td class="num">₩${fmt(pay_)}<span style="color:var(--text3);font-size:10px"> (${payRate}%)</span></td>
       <td class="num">₩${fmt(vat_)}</td>
       <td class="num" style="font-weight:600">₩${fmt(r.fee)}</td>
       <td class="num"><span class="badge badge-a">${r.rate}%</span></td>
     </tr>`;
   }).join('');
 
-  // 월별 비교 행
+  /* ── 월별 비교 표 ── */
   const monthRows = monthly.map((m,i) => {
-    const mo = m.month.slice(5);
+    const mo   = m.month.slice(5);
     const prev = monthly[i-1];
     const diff = prev ? m.sales - prev.sales : null;
-    const diffHtml = diff !== null ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'}; font-size:11px">${diff>=0?'+':''}₩${fmt(diff)}</span>` : '–';
+    const diffHtml = diff!==null
+      ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'};font-size:11px">${diff>=0?'+':''}₩${fmt(diff)}</span>`
+      : '–';
     const netM = m.settlement - monthlyFee;
+    const settleHtml = m.settlement>0 ? '₩'+fmt(m.settlement) : '–';
+    const netHtml = m.settlement>0
+      ? `<span style="color:${netM>=0?'var(--green)':'var(--red)'};font-weight:600">₩${fmt(netM)}</span>`
+      : '–';
     return `<tr>
-      <td><b>${mo}월</b> <span style="color:var(--text3);font-size:11px">(${m.rounds}회)</span></td>
+      <td><b>${mo}월</b><span style="color:var(--text3);font-size:10px"> (${m.rounds}회)</span></td>
       <td class="num">₩${fmt(m.sales)}</td>
       <td class="num" style="color:var(--amber)">₩${fmt(m.fee)}</td>
-      <td class="num" style="color:${m.settlement>0?'var(--green)':'var(--text3)'}">
-        ${m.settlement>0?'₩'+fmt(m.settlement):'–'}</td>
+      <td class="num" style="color:${m.settlement>0?'var(--green)':'var(--text3)'}">₩${fmt(m.settlement)>0?fmt(m.settlement):'0'}</td>
       <td class="num">${diffHtml}</td>
-      <td class="num" style="color:${netM>0?'var(--green)':'var(--red)'}; font-weight:600">
-        ${m.settlement>0?'₩'+fmt(netM):'–'}</td>
+      <td class="num" style="color:var(--amber)">₩${fmt(monthlyFee)}</td>
+      <td class="num">${netHtml}</td>
     </tr>`;
   }).join('');
 
-  // 수익성 바
+  /* 월별 합계 */
+  const totalNet = totalSettle - monthly.length * monthlyFee;
+  const monthTfoot = `<tfoot><tr style="font-weight:600;background:var(--surface2)">
+    <td style="padding:10px 14px">합계</td>
+    <td class="num" style="padding:10px 14px">₩${fmt(totalSales)}</td>
+    <td class="num" style="padding:10px 14px;color:var(--amber)">₩${fmt(totalFee)}</td>
+    <td class="num" style="padding:10px 14px;color:var(--green)">₩${fmt(totalSettle)}</td>
+    <td class="num" style="padding:10px 14px">–</td>
+    <td class="num" style="padding:10px 14px;color:var(--amber)">₩${fmt(monthly.length*monthlyFee)}</td>
+    <td class="num" style="padding:10px 14px;color:${totalNet>=0?'var(--green)':'var(--red)'}">₩${fmt(totalNet)}</td>
+  </tr></tfoot>`;
+
+  /* ── 수익성 바 ── */
   const profitBars = products.map(p => {
-    const total = p.sales || 1;
-    const costPct  = Math.round(p.cost/total*100);
-    const feePct   = Math.round(p.feeShare/total*100);
-    const profPct  = Math.max(0, 100-costPct-feePct);
-    const marginCls = p.margin >= 20 ? 'g' : p.margin >= 0 ? 'a' : 'r';
+    const total  = p.sales || 1;
+    const costPct   = Math.min(100, Math.round(p.cost/total*100));
+    const feePct    = Math.min(100-costPct, Math.round(p.feeShare/total*100));
+    const profPct   = Math.max(0, 100-costPct-feePct);
+    const marginCls = p.margin>=20?'var(--green)':p.margin>=0?'var(--amber)':'var(--red)';
     return `<div class="profit-item">
       <div class="profit-item-header">
         <span class="profit-item-name">${p.name}</span>
-        <span class="profit-item-detail">${p.qty}세트 · 순이익률 <b style="color:var(--${marginCls==='g'?'green':marginCls==='a'?'amber':'red'})">${p.margin.toFixed(1)}%</b></span>
+        <span class="profit-item-detail">${p.qty}세트</span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;font-size:11px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;font-size:11px">
         <div style="color:var(--text3)">판매가<br><b style="font-size:13px;color:var(--text)">₩${fmt(p.sales)}</b></div>
         <div style="color:var(--text3)">원가<br><b style="font-size:13px;color:var(--amber)">₩${fmt(p.cost)}</b></div>
         <div style="color:var(--text3)">수수료<br><b style="font-size:13px;color:#D85A30">₩${fmt(p.feeShare)}</b></div>
+        <div style="color:var(--text3)">순이익<br><b style="font-size:13px;color:${marginCls}">₩${fmt(p.netProfit)}</b></div>
       </div>
       <div class="profit-bar-track">
-        <div class="profit-bar-cost" style="width:${costPct}%"></div>
-        <div class="profit-bar-fee" style="width:${feePct}%"></div>
-        <div class="profit-bar-profit" style="width:${profPct}%"></div>
+        <div class="profit-bar-cost"  style="width:${costPct}%"></div>
+        <div class="profit-bar-fee"   style="width:${feePct}%"></div>
+        <div class="profit-bar-profit"style="width:${profPct}%"></div>
       </div>
       <div class="profit-bar-legend">
         <span><i style="background:var(--amber)"></i>원가 ${costPct}%</span>
         <span><i style="background:#D85A30"></i>수수료 ${feePct}%</span>
         <span><i style="background:var(--green)"></i>순이익 ${profPct}%</span>
-      </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--text2)">
-        세트당 원가 ₩${fmt(costMaster.find(c=>(p.fullName||p.name).includes(c.keyword))?.costPerSet||0)} ·
-        세트당 순이익 <b style="color:${p.margin>=0?'var(--green)':'var(--red)'}">${p.qty>0?'₩'+fmt(Math.round(p.netProfit/p.qty)):'-'}</b>
+        <span style="margin-left:auto;font-weight:600;color:${marginCls}">순이익률 ${p.margin.toFixed(1)}%</span>
       </div>
     </div>`;
-  }).join('');
+  }).join('<div style="height:1px;background:var(--border);margin:14px 0"></div>');
 
-  // 인사이트
+  /* 순이익률 산정방법 설명 */
+  const marginFormula = `<div class="margin-explain">
+    <b>📐 순이익률 산정 방법</b><br>
+    순이익 = 판매금액 − 원가 − 수수료(판매금액 × 평균수수료율 ${avgRate.toFixed(2)}%)<br>
+    순이익률 = 순이익 ÷ 판매금액 × 100<br>
+    <span style="color:var(--text3)">※ 수수료는 전체 수수료를 판매비중으로 상품별 배분한 추정치예요.</span>
+  </div>`;
+
+  /* ── 손익분기점 ── */
+  // 상품별 세트당 순이익 계산
+  const bepProducts = products.map(p => {
+    const feePerSet = p.qty>0 ? Math.round(p.feeShare/p.qty) : 0;
+    const netPerSet = p.sellPrice - p.costPerSet - feePerSet;
+    const bepQty    = netPerSet>0 ? Math.ceil(monthlyFee/netPerSet) : null;
+    const achieved  = p.qty;
+    const bepPct    = bepQty ? Math.min(100, Math.round(achieved/bepQty*100)) : 0;
+    return {...p, feePerSet, netPerSet, bepQty, achieved, bepPct};
+  });
+
+  const bepCards = bepProducts.map(p => `
+    <div style="margin-bottom:18px">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">${p.name}</div>
+      <div class="bep-grid">
+        <div class="bep-card">
+          <div class="bep-card-label">세트당 판매가</div>
+          <div class="bep-card-val">₩${fmt(p.sellPrice)}</div>
+        </div>
+        <div class="bep-card">
+          <div class="bep-card-label">세트당 원가</div>
+          <div class="bep-card-val a">₩${fmt(p.costPerSet)}</div>
+        </div>
+        <div class="bep-card">
+          <div class="bep-card-label">세트당 수수료(추정)</div>
+          <div class="bep-card-val a">₩${fmt(p.feePerSet)}</div>
+        </div>
+        <div class="bep-card">
+          <div class="bep-card-label">세트당 순이익</div>
+          <div class="bep-card-val ${p.netPerSet>=0?'g':'r'}">₩${fmt(p.netPerSet)}</div>
+        </div>
+        <div class="bep-card">
+          <div class="bep-card-label">월 입점비 회수 필요 수량</div>
+          <div class="bep-card-val">${p.bepQty ? p.bepQty+'세트' : '–'}</div>
+          <div class="bep-card-sub">월 이용료 ₩${fmt(monthlyFee)} 기준</div>
+        </div>
+        <div class="bep-card">
+          <div class="bep-card-label">실제 판매 수량</div>
+          <div class="bep-card-val ${p.bepQty&&p.achieved>=p.bepQty?'g':'a'}">${p.achieved}세트</div>
+          <div class="bep-card-sub">${reportYear}년 기준</div>
+        </div>
+      </div>
+      ${p.bepQty ? `
+      <div class="bep-progress">
+        <div class="bep-progress-label">
+          <span>입점비 회수 진행률</span>
+          <span style="font-weight:600;color:${p.bepPct>=100?'var(--green)':'var(--amber)'}">
+            ${p.achieved}/${p.bepQty}세트 (${p.bepPct}%)
+          </span>
+        </div>
+        <div class="bep-track">
+          <div class="bep-fill" style="width:${p.bepPct}%; background:${p.bepPct>=100?'var(--green)':'var(--amber)'}"></div>
+        </div>
+      </div>
+      <div class="bep-result ${p.bepPct<100?'warn':''}">
+        ${p.bepPct>=100
+          ? `✅ <b>${p.name}</b>은 이미 손익분기점을 넘었어요!<br>
+             ${p.bepQty}세트 이상 판매로 월 입점비 ₩${fmt(monthlyFee)}를 회수하고,
+             추가로 <b>₩${fmt(p.netPerSet*(p.achieved-p.bepQty))}</b> 순익을 실현했어요.`
+          : `⚠️ <b>${p.name}</b>은 아직 손익분기점에 도달하지 못했어요.<br>
+             현재 ${p.achieved}세트 판매로 월 입점비의 ${p.bepPct}%만 회수됐어요.
+             손익분기점까지 <b>${p.bepQty-p.achieved}세트</b> 더 필요해요.`}
+      </div>` : '<div style="font-size:12px;color:var(--text3)">세트당 순이익 데이터가 없어 손익분기점을 계산할 수 없어요.</div>'}
+    </div>
+  `).join('<div style="height:1px;background:var(--border);margin:16px 0"></div>');
+
+  /* 전체 손익 최종 보고 */
+  const totalBepQty = bepProducts.reduce((a,p)=>a+(p.bepQty||0),0);
+  const totalActual = bepProducts.reduce((a,p)=>a+p.achieved,0);
+  const totalNetP   = products.reduce((a,p)=>a+p.netProfit,0);
+  const annualFee   = 12 * monthlyFee;
+  const finalOk     = totalNetP > annualFee;
+
+  const finalReport = `
+    <div style="margin-top:16px;padding:16px 20px;background:${finalOk?'var(--green-bg)':'var(--amber-bg)'};border:0.5px solid ${finalOk?'var(--green)':'var(--amber)'};border-radius:var(--radius-lg);font-size:13px;line-height:1.9">
+      <div style="font-size:14px;font-weight:700;color:${finalOk?'var(--green)':'var(--amber)'};margin-bottom:8px">
+        📋 ${reportYear}년 최종 보고
+      </div>
+      총 판매금액 <b>₩${fmt(totalSales)}</b>, 총 정산금액 <b>₩${fmt(totalSettle)}</b><br>
+      수수료 총액 <b style="color:var(--amber)">₩${fmt(totalFee)}</b> (평균 ${avgRate.toFixed(2)}%),
+      월 이용료 <b style="color:var(--amber)">₩${fmt(monthly.length*monthlyFee)}</b> (${monthly.length}개월)<br>
+      상품 원가 총액 <b style="color:var(--amber)">₩${fmt(products.reduce((a,p)=>a+p.cost,0))}</b><br>
+      <b style="color:${finalOk?'var(--green)':'var(--red)'}">
+        순이익 ₩${fmt(totalNetP)} ${finalOk?'✅ 흑자':'❌ 적자'}
+      </b><br>
+      ${finalOk
+        ? `연간 입점비(₩${fmt(annualFee)}) 대비 순이익이 <b style="color:var(--green)">₩${fmt(totalNetP-annualFee)}</b> 초과해요.`
+        : `연간 입점비(₩${fmt(annualFee)}) 회수까지 <b style="color:var(--red)">₩${fmt(annualFee-totalNetP)}</b> 부족해요.`}
+    </div>`;
+
+  /* ── 인사이트 ── */
   const insights = [];
-  if (bestMonth)  insights.push({icon:'🏆', text:`<b>최고 정산월: ${bestMonth.month.slice(5)}월</b> — 정산금액 ₩${fmt(bestMonth.settlement)}으로 가장 높았어요.`});
-  if (worstMonth && worstMonth !== bestMonth) insights.push({icon:'📌', text:`<b>최저 정산월: ${worstMonth.month.slice(5)}월</b> — 정산금액 ₩${fmt(worstMonth.settlement)}이었어요.`});
-  const lowMargin = products.filter(p=>p.margin<20);
-  if (lowMargin.length) insights.push({icon:'⚠️', text:`<b>${lowMargin.map(p=>p.name).join(', ')}</b>의 순이익률이 20% 미만이에요. 원가 또는 수수료 부담을 검토해보세요.`});
-  insights.push({icon:'💡', text:`수수료율이 회차마다 다른 이유는 <b>결제수단별 결제수수료</b> 차이 때문이에요. 네이버페이(3.6%)·토스(3.5%) 등 결제수단 비중에 따라 0.1~0.2%p 차이가 생겨요.`});
-  insights.push({icon:'📅', text:`월 이용료(₩${fmt(monthlyFee)})가 ${s.length}회차에 걸쳐 총 ₩${fmt(s.length*monthlyFee)} 발생했어요. 연간으로는 ₩${fmt(12*monthlyFee)}이에요.`});
+  if (bestMonth)  insights.push({i:'🏆', t:`<b>최고 정산월 ${bestMonth.month.slice(5)}월</b> — ₩${fmt(bestMonth.settlement)}`});
+  if (worstMonth && worstMonth!==bestMonth) insights.push({i:'📌', t:`<b>최저 정산월 ${worstMonth.month.slice(5)}월</b> — ₩${fmt(worstMonth.settlement)}`});
+  const lowM = products.filter(p=>p.margin<20);
+  if (lowM.length) insights.push({i:'⚠️', t:`<b>${lowM.map(p=>p.name).join(', ')}</b> 순이익률 20% 미만. 원가·가격 검토 필요.`});
+  insights.push({i:'💡', t:`결제수단(네이버페이 3.6%·토스 3.5% 등) 비중에 따라 수수료율이 회차마다 달라져요.`});
 
+  /* ── 최종 HTML ── */
   document.getElementById('reportContent').innerHTML = `
-    <!-- 한줄 요약 -->
+
     <div class="report-section">
       <div class="report-section-title">📝 한줄 요약</div>
       <div class="summary-box">
-        <div class="summary-headline">${headline}</div>
-        <div class="summary-tags">
-          <span class="stag stag-b">${reportYear}년</span>
-          <span class="stag stag-g">정산 ${s.length}회</span>
-          <span class="stag stag-a">수수료 ${avgRate.toFixed(2)}%</span>
-          <span class="stag ${netSettle>=0?'stag-g':'stag-r'}">실수익 ₩${fmt(netSettle)}</span>
-          ${trend>0?'<span class="stag stag-g">📈 상승세</span>':trend<0?'<span class="stag stag-r">📉 하락세</span>':''}
-        </div>
+        <div class="summary-tags">${summaryTags}</div>
       </div>
     </div>
 
-    <!-- KPI -->
     <div class="report-section">
       <div class="report-section-title">💰 핵심 지표</div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">총 판매금액</div><div class="kpi-val">₩${fmt(totalSales)}</div><div class="kpi-sub">${s.length}회 정산</div></div>
-        <div class="kpi-card"><div class="kpi-label">총 정산금액</div><div class="kpi-val g">₩${fmt(totalSettle)}</div><div class="kpi-sub">수취 확정분</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 정산금액</div><div class="kpi-val g">₩${fmt(totalSettle)}</div><div class="kpi-sub">수취 확정</div></div>
         <div class="kpi-card"><div class="kpi-label">총 수수료</div><div class="kpi-val a">₩${fmt(totalFee)}</div><div class="kpi-sub">평균 ${avgRate.toFixed(2)}%</div></div>
-        <div class="kpi-card"><div class="kpi-label">이용료 차감 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(netSettle)}</div><div class="kpi-sub">정산금 - 연이용료</div></div>
-        <div class="kpi-card"><div class="kpi-label">월 평균 판매금액</div><div class="kpi-val">₩${fmt(Math.round(totalSales/monthly.length))}</div><div class="kpi-sub">${monthly.length}개월</div></div>
-        <div class="kpi-card"><div class="kpi-label">월 평균 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(Math.round(netSettle/monthly.length))}</div><div class="kpi-sub">이용료 차감</div></div>
+        <div class="kpi-card"><div class="kpi-label">이용료 차감 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(netSettle)}</div><div class="kpi-sub">정산금−이용료</div></div>
+        <div class="kpi-card"><div class="kpi-label">월평균 판매금액</div><div class="kpi-val">₩${fmt(Math.round(totalSales/monthly.length))}</div><div class="kpi-sub">${monthly.length}개월</div></div>
+        <div class="kpi-card"><div class="kpi-label">월평균 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(Math.round(netSettle/monthly.length))}</div><div class="kpi-sub">이용료 차감</div></div>
       </div>
     </div>
 
-    <!-- 수수료율 산정 방법 -->
     <div class="report-section">
       <div class="report-section-title">🧮 수수료율 산정 방법</div>
-      <div class="insight-list" style="margin-bottom:12px">
-        <div class="insight-item">
-          <div class="insight-icon">📐</div>
-          <div class="insight-text">
-            <b>수수료 구성 = idus 수수료(15%) + 결제수수료(결제수단별) + 부가세(수수료×10%)</b><br>
-            결제수단마다 수수료율이 달라요: 네이버페이 3.6% · 토스 3.5% · 카드사 2~3%대.<br>
-            한 회차에 다양한 결제수단이 섞이면 수수료율이 20.35%~20.46% 사이에서 변동해요.
-          </div>
-        </div>
-      </div>
       <div class="fee-analysis">
         <table>
-          <thead><tr><th>정산 회차</th><th class="num">판매금액</th><th class="num">idus수수료</th><th class="num">결제수수료</th><th class="num">부가세</th><th class="num">합계</th><th class="num">실효율</th></tr></thead>
+          <thead><tr>
+            <th>정산 회차</th><th class="num">판매금액</th><th class="num">idus수수료</th>
+            <th class="num">결제수수료</th><th class="num">부가세</th><th class="num">합계</th><th class="num">실효율</th>
+          </tr></thead>
           <tbody>${rateRows}</tbody>
         </table>
       </div>
+      <div class="insight-item" style="margin-top:10px">
+        <div class="insight-icon">📐</div>
+        <div class="insight-text">
+          <b>수수료 구성 = idus 수수료(15%) + 결제수수료(수단별) + 부가세(수수료×10%)</b><br>
+          네이버페이 3.6% · 토스 3.5% 등 결제수단 비중에 따라 실효 수수료율이 20.35%~20.46% 사이에서 변동해요.
+        </div>
+      </div>
     </div>
 
-    <!-- 상품별 수익성 -->
     <div class="report-section">
       <div class="report-section-title">📦 상품별 원가 기준 수익성</div>
       <div class="profit-bar-wrap">${profitBars}</div>
+      ${marginFormula}
     </div>
 
-    <!-- 월별 비교 -->
     <div class="report-section">
       <div class="report-section-title">📅 월별 상세 비교</div>
       <div class="month-compare">
         <table>
-          <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">전월대비</th><th class="num">이용료 차감 실수익</th></tr></thead>
+          <thead><tr>
+            <th>월</th><th class="num">판매금액</th><th class="num">수수료</th>
+            <th class="num">정산금액</th><th class="num">전월대비</th>
+            <th class="num">월이용료</th><th class="num">실수익</th>
+          </tr></thead>
           <tbody>${monthRows}</tbody>
+          ${monthTfoot}
         </table>
       </div>
     </div>
 
-    <!-- 인사이트 -->
+    <div class="report-section">
+      <div class="report-section-title">⚖️ 손익분기점 분석</div>
+      <div class="bep-wrap">
+        ${bepCards}
+        ${finalReport}
+        <div class="bep-formula">
+          <b>산정 기준</b><br>
+          세트당 순이익 = 세트당 판매가 − 세트당 원가 − 세트당 수수료(추정)<br>
+          손익분기 수량 = 월 이용료 ÷ 세트당 순이익 (올림)<br>
+          전체 순이익 = 총 정산금액 − 총 원가 − 총 수수료
+        </div>
+      </div>
+    </div>
+
     <div class="report-section">
       <div class="report-section-title">💡 인사이트</div>
       <div class="insight-list">
-        ${insights.map(ins=>`<div class="insight-item"><div class="insight-icon">${ins.icon}</div><div class="insight-text">${ins.text}</div></div>`).join('')}
+        ${insights.map(ins=>`<div class="insight-item"><div class="insight-icon">${ins.i}</div><div class="insight-text">${ins.t}</div></div>`).join('')}
       </div>
     </div>
   `;
