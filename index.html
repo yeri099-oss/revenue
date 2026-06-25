@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>아이디어스 정산 대시보드 · 꽃밥이야기</title>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -295,12 +298,59 @@ tr:hover td { background: var(--surface2); }
 .margin-explain { background: var(--surface2); border-radius: var(--radius); padding: 14px 16px; margin-top: 14px; font-size: 12px; color: var(--text2); line-height: 1.8; }
 .margin-explain b { color: var(--text); }
 
-/* SUBBAR (연도 필터 전용) */
-.subbar { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 8px; }
-.subbar-label { font-size: 11px; font-weight: 600; color: var(--text3); margin-right: 4px; letter-spacing: 0.04em; }
+/* ── LOGIN ── */
+#loginPage { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.login-box { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:40px 36px; width:100%; max-width:360px; box-shadow:0 8px 32px rgba(0,0,0,0.08); }
+.login-logo { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:700; color:var(--text); margin-bottom:28px; }
+.login-logo span { font-size:24px; }
+.login-subtitle { font-size:12px; color:var(--text3); margin-top:2px; font-weight:400; }
+.login-field { margin-bottom:14px; }
+.login-label { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:5px; display:block; }
+.login-input { width:100%; padding:10px 14px; font-size:14px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--surface); color:var(--text); outline:none; transition:border-color 0.15s; }
+.login-input:focus { border-color:var(--green); }
+.login-btn { width:100%; padding:11px; font-size:14px; font-weight:700; border:none; border-radius:var(--radius); background:var(--green); color:#fff; cursor:pointer; margin-top:8px; transition:opacity 0.15s; }
+.login-btn:hover { opacity:0.88; }
+.login-err { font-size:12px; color:var(--red); margin-top:8px; text-align:center; min-height:18px; }
+/* ── SETTINGS ── */
+.settings-page { display:none; padding:24px; max-width:480px; }
+.settings-section { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px; margin-bottom:16px; }
+.settings-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+.settings-field { margin-bottom:12px; }
+.settings-label { font-size:11px; font-weight:600; color:var(--text3); margin-bottom:4px; display:block; }
+.settings-input { width:100%; padding:8px 12px; font-size:13px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--surface); color:var(--text); outline:none; }
+.settings-input:focus { border-color:var(--green); }
+.settings-btn { padding:8px 20px; font-size:13px; font-weight:600; border:none; border-radius:var(--radius); background:var(--green); color:#fff; cursor:pointer; }
+.settings-btn:hover { opacity:0.88; }
+.settings-msg { font-size:12px; margin-top:8px; min-height:18px; }
+.logout-btn { font-size:12px; color:var(--text3); background:none; border:0.5px solid var(--border2); border-radius:var(--radius); padding:5px 14px; cursor:pointer; }
+.logout-btn:hover { color:var(--red); border-color:var(--red); }
 </style>
 </head>
 <body>
+
+<!-- 로그인 화면 -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <span>🌸</span>
+      <div>
+        아이디어스 정산
+        <div class="login-subtitle">꽃밥이야기 전용</div>
+      </div>
+    </div>
+    <div class="login-field">
+      <label class="login-label">아이디</label>
+      <input class="login-input" id="loginId" type="text" placeholder="아이디 입력" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label class="login-label">패스워드</label>
+      <input class="login-input" id="loginPw" type="password" placeholder="패스워드 입력" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
 
 <header class="header">
   <div class="header-logo">
@@ -311,13 +361,11 @@ tr:hover td { background: var(--surface2); }
     <button class="main-tab" id="tab-report" onclick="switchMainTab('report')">📋 연도별 보고서</button>
     <button class="main-tab" id="tab-manage" onclick="switchMainTab('manage')">⚙️ 관리</button>
   </nav>
+  <div class="year-filter" id="yearFilter" style="margin-left:auto"></div>
+  <button class="main-tab" id="tab-settings" onclick="switchMainTab('settings')" style="color:var(--text3)">⚙️ 설정</button>
 </header>
 
 <div id="dashboardPage">
-<div class="subbar" id="dashboardSubbar">
-  <span class="subbar-label">연도</span>
-  <div class="year-filter" id="yearFilter"></div>
-</div>
 <main class="main">
   <div class="section-label" id="sectionLabel">전체 요약</div>
   <div class="card-grid" id="summaryCards"></div>
@@ -404,6 +452,31 @@ tr:hover td { background: var(--surface2); }
   </div>
 
 </div>
+<!-- 설정 탭 -->
+<div id="settingsPage" class="settings-page">
+  <div class="settings-section">
+    <div class="settings-title">🔐 계정 설정</div>
+    <div class="settings-field">
+      <label class="settings-label">현재 아이디</label>
+      <input class="settings-input" id="setNewId" placeholder="새 아이디">
+    </div>
+    <div class="settings-field">
+      <label class="settings-label">새 패스워드</label>
+      <input class="settings-input" id="setNewPw" type="password" placeholder="새 패스워드">
+    </div>
+    <div class="settings-field">
+      <label class="settings-label">패스워드 확인</label>
+      <input class="settings-input" id="setNewPw2" type="password" placeholder="패스워드 재입력">
+    </div>
+    <button class="settings-btn" onclick="saveCredentials()">저장</button>
+    <div class="settings-msg" id="settingsMsg"></div>
+  </div>
+  <div class="settings-section">
+    <div class="settings-title">🚪 로그아웃</div>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+</div>
+
 
 <div id="reportPage">
   <div class="report-year-tabs" id="reportYearTabs"></div>
@@ -627,12 +700,7 @@ function renderSummary(d) {
     </div>
     <div class="metric-sub">클릭하여 수정</div>
   </div>`;
-  const calcExplain = `<div style="grid-column:1/-1;background:var(--surface2);border-radius:var(--radius);padding:11px 16px;font-size:12px;color:var(--text2);line-height:1.8;margin-top:2px">
-    <b style="color:var(--text)">💡 실수익 계산 방법</b><br>
-    실수익 = 정산금액 − 월 이용료(₩${fmt(monthlyFee)} × ${d.monthly.length}개월)<br>
-    <span style="color:var(--text3)">※ 원가는 별도 차감되지 않아요. 순수 아이디어스 채널 기준 실수령액이에요.</span>
-  </div>`;
-  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard + calcExplain;
+  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard;
 }
 
 function renderMonthly(monthly) {
@@ -971,14 +1039,23 @@ function mergeSettlements(incoming) {
 let mainTab = 'dashboard';
 function switchMainTab(tab) {
   mainTab = tab;
-  ['dashboard','manage','report'].forEach(t => {
+  ['dashboard','manage','report','settings'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.classList.toggle('active', tab===t);
   });
   document.getElementById('dashboardPage').classList.toggle('hide', tab!=='dashboard');
-  document.getElementById('dashboardSubbar').style.display = tab==='dashboard' ? '' : 'none';
-  document.getElementById('managePage').style.display = tab==='manage' ? 'block' : 'none';
-  document.getElementById('reportPage').classList.toggle('show', tab==='report');
+  document.getElementById('managePage').style.display   = tab==='manage'   ? 'block' : 'none';
+  document.getElementById('reportPage').classList.toggle('show',  tab==='report');
+  document.getElementById('settingsPage').style.display = tab==='settings' ? 'block' : 'none';
+  document.getElementById('yearFilter').style.display   = tab==='dashboard' ? '' : 'none';
+  // 설정 진입 시 현재 아이디 표시
+  if (tab==='settings') {
+    const cred = getLocalCred();
+    document.getElementById('setNewId').value = cred.id;
+    document.getElementById('setNewPw').value = '';
+    document.getElementById('setNewPw2').value = '';
+    document.getElementById('settingsMsg').textContent = '';
+  }
   if (tab === 'report') renderReport();
 }
 
@@ -1227,10 +1304,115 @@ function setReportYear(y) {
   renderReport();
 }
 
-/* ─── 초기 렌더 ─── */
-renderCostList();
-buildYearFilter();
-render();
+
+/* ══════════════════════════════════════
+   Firebase + 로그인
+══════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCIvN2Y1a9ByNmz4UpgdmaTFrd5SAYZZGY",
+  authDomain: "trip-84bd3.firebaseapp.com",
+  projectId: "trip-84bd3",
+  storageBucket: "trip-84bd3.firebasestorage.app",
+  messagingSenderId: "830387988854",
+  appId: "1:830387988854:web:85d1c46b3f4f374214b257"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const CRED_DOC = 'settings/credentials';
+
+// 기본 자격증명 (Firestore에 없을 때 fallback)
+const DEFAULT_CRED = { id: 'admin', pw: '1234' };
+
+function getLocalCred() {
+  try {
+    const s = sessionStorage.getItem('idus_cred');
+    return s ? JSON.parse(s) : null;
+  } catch { return null; }
+}
+
+async function loadCred() {
+  try {
+    const doc = await db.doc(CRED_DOC).get();
+    if (doc.exists) return doc.data();
+  } catch(e) { console.warn('Firestore 읽기 실패, 기본값 사용', e); }
+  return DEFAULT_CRED;
+}
+
+async function saveCred(id, pw) {
+  try {
+    await db.doc(CRED_DOC).set({ id, pw });
+    return true;
+  } catch(e) {
+    console.error('Firestore 저장 실패', e);
+    return false;
+  }
+}
+
+async function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const err = document.getElementById('loginErr');
+  if (!id || !pw) { err.textContent = '아이디와 패스워드를 입력해주세요.'; return; }
+  err.textContent = '확인 중...';
+  const cred = await loadCred();
+  if (id === cred.id && pw === cred.pw) {
+    sessionStorage.setItem('idus_cred', JSON.stringify(cred));
+    sessionStorage.setItem('idus_loggedin', '1');
+    document.getElementById('loginPage').style.display = 'none';
+    err.textContent = '';
+    initApp();
+  } else {
+    err.textContent = '아이디 또는 패스워드가 올바르지 않아요.';
+  }
+}
+
+async function saveCredentials() {
+  const newId = document.getElementById('setNewId').value.trim();
+  const newPw = document.getElementById('setNewPw').value;
+  const newPw2 = document.getElementById('setNewPw2').value;
+  const msg = document.getElementById('settingsMsg');
+  if (!newId) { msg.style.color='var(--red)'; msg.textContent='아이디를 입력해주세요.'; return; }
+  if (!newPw) { msg.style.color='var(--red)'; msg.textContent='패스워드를 입력해주세요.'; return; }
+  if (newPw !== newPw2) { msg.style.color='var(--red)'; msg.textContent='패스워드가 일치하지 않아요.'; return; }
+  msg.style.color='var(--text3)'; msg.textContent='저장 중...';
+  const ok = await saveCred(newId, newPw);
+  if (ok) {
+    sessionStorage.setItem('idus_cred', JSON.stringify({id:newId, pw:newPw}));
+    msg.style.color='var(--green)'; msg.textContent='✅ 저장됐어요!';
+    setTimeout(()=>{ msg.textContent=''; }, 2500);
+  } else {
+    msg.style.color='var(--red)'; msg.textContent='저장 실패. 네트워크를 확인해주세요.';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('idus_loggedin');
+  sessionStorage.removeItem('idus_cred');
+  location.reload();
+}
+
+// Enter 키 로그인
+document.addEventListener('DOMContentLoaded', () => {
+  ['loginId','loginPw'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  });
+});
+
+function initApp() {
+  renderCostList();
+  buildYearFilter();
+  render();
+}
+
+/* ─── 초기 실행: 로그인 여부 확인 ─── */
+if (sessionStorage.getItem('idus_loggedin') === '1') {
+  document.getElementById('loginPage').style.display = 'none';
+  initApp();
+}
+// 로그인 안 된 상태에선 loginPage가 화면을 덮고 있음
+
 </script>
 </body>
 </html>
