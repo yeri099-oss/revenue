@@ -138,7 +138,8 @@ body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sa
 
 /* SUMMARY CARDS */
 .section-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; margin-top: 24px; border-left: 2px solid var(--green); padding-left: 8px; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+@media (max-width: 680px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
 .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
 .metric-label { font-size: 10px; color: var(--text3); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 .metric-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; line-height: 1.2; }
@@ -441,7 +442,7 @@ tr:hover td { background: var(--surface2); }
       <div id="costList"></div>
       <div style="margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)">
         <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px">+ 새 상품 원가 추가</div>
-        <div style="display:grid;grid-template-columns:1fr 180px;gap:8px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 160px 48px;gap:8px;margin-bottom:8px">
           <div>
             <div style="font-size:11px;color:var(--text3);margin-bottom:4px">상품명 키워드 <span style="color:var(--red)">*</span></div>
             <input class="cost-input" id="newCostName" placeholder="예) 김부각, 채개장" style="width:100%">
@@ -449,6 +450,11 @@ tr:hover td { background: var(--surface2); }
           <div>
             <div style="font-size:11px;color:var(--text3);margin-bottom:4px">세트당 원가 (원) <span style="color:var(--red)">*</span></div>
             <input class="cost-input" id="newCostVal" placeholder="예) 12900" type="number" style="width:100%">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">차트 색</div>
+            <input type="color" id="newCostColor" value="#5B7FA6"
+              style="width:100%;height:36px;border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;padding:2px">
           </div>
         </div>
         <button class="cost-add-btn" style="width:100%;padding:10px" onclick="addCostItem()">+ 추가하기</button>
@@ -477,6 +483,28 @@ tr:hover td { background: var(--surface2); }
       <div class="file-list" id="fileList"></div>
       <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled style="margin-top:12px">📊 정산서 분석하기</button>
       <div id="parseStatus" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- 월 이용료 설정 -->
+  <div class="panel-box" style="margin-bottom:16px">
+    <div class="panel-header" onclick="togglePanel('feeBody','feeToggle')">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--color-fee)"></div>월 이용료 설정 <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px">실수익 계산에 자동 반영</span></div>
+      <div class="toggle-icon" id="feeToggle">▼</div>
+    </div>
+    <div class="panel-body open" id="feeBody">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="font-size:13px;color:var(--text3)">현재 적용 이용료</div>
+        <div id="manageFeeDisplay" style="font-size:20px;font-weight:700;color:var(--color-fee);letter-spacing:-0.02em">₩11,000</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="manageFeeInput" type="number" value="11000"
+          style="width:140px;padding:8px 12px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none"
+          placeholder="금액 입력 (원)">
+        <button onclick="saveFee()" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-radius:var(--radius);background:var(--green);color:#fff;cursor:pointer">저장</button>
+        <span id="manageFeeMsg" style="font-size:12px"></span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">아이디어스 프리미엄 월 이용료 · 변경 시 모든 실수익 계산에 즉시 반영돼요</div>
     </div>
   </div>
 
@@ -545,8 +573,8 @@ let monthlyFee = 11000;
 /* ─── 원가 마스터 ─── */
 // key: 정산서 작품명에 포함되는 키워드, value: 세트당 원가
 let costMaster = [
-  {keyword:'김부각', name:'귀한 김부각 60g×3봉', costPerSet:12900},
-  {keyword:'채개장', name:'비건식 채개장 500g×3봉', costPerSet:23100},
+  {keyword:'김부각', name:'귀한 김부각 60g×3봉', costPerSet:12900, color:'#5B7FA6'},
+  {keyword:'채개장', name:'비건식 채개장 500g×3봉', costPerSet:23100, color:'#5A9E6F'},
 ];
 
 function getCostForProduct(fullName) {
@@ -559,6 +587,9 @@ function renderCostList() {
   if (!costMaster.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0">등록된 원가 없음</div>'; return; }
   el.innerHTML = costMaster.map((c, i) => `
     <div class="cost-item">
+      <input type="color" value="${c.color||'#888888'}" title="차트 색상"
+        style="width:22px;height:22px;border:none;border-radius:4px;cursor:pointer;padding:0;background:none;flex-shrink:0"
+        onchange="editCostColor(${i}, this.value)">
       <div class="cost-item-name">${c.name}</div>
       <div class="cost-item-val">원가 ₩${c.costPerSet.toLocaleString('ko-KR')} / 세트</div>
       <button class="cost-edit-btn" onclick="editCostItem(${i})">수정</button>
@@ -569,10 +600,10 @@ function renderCostList() {
 function addCostItem() {
   const name = document.getElementById('newCostName').value.trim();
   const val = parseInt(document.getElementById('newCostVal').value);
+  const color = document.getElementById('newCostColor').value || '#888888';
   const msg = document.getElementById('costAddMsg');
   if (!name || !val || val <= 0) { msg.textContent = '상품명과 원가를 모두 입력해주세요.'; msg.style.color='var(--red)'; return; }
-  // keyword는 상품명 그대로 사용 (포함 검색)
-  costMaster.push({keyword: name, name: name, costPerSet: val});
+  costMaster.push({keyword: name, name: name, costPerSet: val, color});
   document.getElementById('newCostName').value = '';
   document.getElementById('newCostVal').value = '';
   msg.textContent = '✅ 추가됐어요!'; msg.style.color='var(--color-profit)';
@@ -589,6 +620,12 @@ function editCostItem(i) {
   const parsed = parseInt(newVal.replace(/,/g,''));
   if (!parsed || parsed <= 0) { alert('올바른 금액을 입력해주세요.'); return; }
   costMaster[i].costPerSet = parsed;
+  renderCostList();
+  render();
+  saveCostMaster();
+}
+function editCostColor(i, color) {
+  costMaster[i].color = color;
   renderCostList();
   render();
   saveCostMaster();
@@ -618,26 +655,18 @@ function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
 const fmt = v => Math.round(v).toLocaleString('ko-KR');
 const pct = v => v.toFixed(2) + '%';
 
-/* ─── 월이용료 인라인 수정 ─── */
-function startFeeEdit() {
-  document.getElementById('feeDisplay').style.display = 'none';
-  const wrap = document.getElementById('feeEditWrap');
-  wrap.classList.add('show');
-  document.getElementById('feeEditInput').value = monthlyFee;
-  document.getElementById('feeEditInput').focus();
-}
+/* ─── 월이용료 수정 (관리탭) ─── */
 function saveFee() {
-  const v = parseInt(document.getElementById('feeEditInput').value);
+  const v = parseInt(document.getElementById('manageFeeInput').value);
   if (!v || v < 0) { alert('올바른 금액을 입력해주세요.'); return; }
   monthlyFee = v;
-  document.getElementById('feeDisplay').textContent = '₩' + v.toLocaleString('ko-KR');
-  cancelFee();
+  document.getElementById('manageFeeDisplay').textContent = '₩' + v.toLocaleString('ko-KR');
+  const msg = document.getElementById('manageFeeMsg');
+  msg.style.color = 'var(--color-settle)';
+  msg.textContent = '✅ 저장됐어요!';
+  setTimeout(()=>{ msg.textContent=''; }, 2000);
   render();
   saveMonthlyFee(v);
-}
-function cancelFee() {
-  document.getElementById('feeDisplay').style.display = '';
-  document.getElementById('feeEditWrap').classList.remove('show');
 }
 
 /* ─── 연도 필터 ─── */
@@ -696,7 +725,8 @@ function filtered() {
     const sales = Math.round(p.sales * ratio);
     const costEntry = costMaster.find(c => (p.fullName||p.name).includes(c.keyword));
     const cost = costEntry ? qty * costEntry.costPerSet : Math.round(p.cost * ratio);
-    return {...p, qty, sales, cost, profit: sales - cost};
+    const color = costEntry ? costEntry.color : (p.color || '#888888');
+    return {...p, qty, sales, cost, profit: sales - cost, color};
   });
 
   return { settlements: s, monthly, totalSales, totalFee, totalSettle, avgRate, monthlyFeeTotal, netSettle: totalSettle - monthlyFeeTotal, products };
@@ -715,29 +745,18 @@ function render() {
 }
 
 function renderSummary(d) {
+  const monthCnt = d.monthly.length || 1;
   const cards = [
-    {label:'총 판매금액', value:'₩'+fmt(d.totalSales), color:'var(--color-sales)', sub:`정산 ${d.settlements.length}회`},
-    {label:'총 정산금액', value:'₩'+fmt(d.totalSettle), color:'var(--color-settle)', sub:'수취 확정분'},
-    {label:'총 수수료', value:'₩'+fmt(d.totalFee), color:'var(--color-fee)', sub:`평균 ${pct(d.avgRate)}`},
-    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), color: d.netSettle>=0?'var(--color-profit)':'var(--color-loss)', sub:'정산금 - 연이용료'},
+    {label:'총 판매금액',     value:'₩'+fmt(d.totalSales),                           color:'var(--color-sales)',                                              sub:`정산 ${d.settlements.length}회`},
+    {label:'총 정산금액',     value:'₩'+fmt(d.totalSettle),                          color:'var(--color-settle)',                                             sub:'수취 확정분'},
+    {label:'총 수수료',       value:'₩'+fmt(d.totalFee),                             color:'var(--color-fee)',                                                sub:`평균 ${pct(d.avgRate)}`},
+    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle),                          color:d.netSettle>=0?'var(--color-profit)':'var(--color-loss)',           sub:'정산금 - 이용료'},
+    {label:'월평균 판매금액', value:'₩'+fmt(Math.round(d.totalSales/monthCnt)),       color:'var(--color-sales)',                                              sub:`${monthCnt}개월 평균`},
+    {label:'월평균 실수익',   value:'₩'+fmt(Math.round(d.netSettle/monthCnt)),        color:d.netSettle>=0?'var(--color-profit)':'var(--color-loss)',           sub:'이용료 차감'},
   ];
-  const cardHtml = cards.map(c =>
+  document.getElementById('summaryCards').innerHTML = cards.map(c =>
     `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value" style="color:${c.color}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
   ).join('');
-  // 월이용료 카드 (인라인 수정 UI 포함)
-  const feeCard = `<div class="metric-card">
-    <div class="metric-label">월 이용료</div>
-    <div class="fee-inline">
-      <div class="fee-val" id="feeDisplay" onclick="startFeeEdit()" title="클릭하여 수정">₩${fmt(monthlyFee)}</div>
-      <div class="fee-edit-wrap" id="feeEditWrap">
-        <input class="fee-edit-input" id="feeEditInput" type="number" value="${monthlyFee}">
-        <button class="fee-edit-ok" onclick="saveFee()">저장</button>
-        <button class="fee-edit-cancel" onclick="cancelFee()">취소</button>
-      </div>
-    </div>
-    <div class="metric-sub">클릭하여 수정</div>
-  </div>`;
-  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard;
 }
 
 function renderMonthly(monthly) {
@@ -772,13 +791,16 @@ function renderMonthly(monthly) {
 
 function renderProduct(products) {
   if (charts.product) { charts.product.destroy(); charts.product = null; }
-  const colors = ['#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA'];
+  const colors = p.map ? p.map(prod => prod.color || '#888888') : ['#5B7FA6','#5A9E6F','#C07A3A','#9B5EA8','#7A7A7A'];
   const total = products.reduce((a,p)=>a+p.sales,0);
 
   // 도넛 차트
+  const PALETTE = ['#5B7FA6','#5A9E6F','#C07A3A','#9B5EA8','#7A7A7A','#4E8C8C','#A06050'];
+  const prodColors = products.map((p,i) => p.color || PALETTE[i % PALETTE.length]);
+
   charts.product = new Chart(document.getElementById('productChart'), {
     type: 'doughnut',
-    data: { labels: products.map(p=>p.name), datasets:[{ data:products.map(p=>p.sales), backgroundColor:colors.slice(0,products.length), borderWidth:2, borderColor:'var(--surface)' }] },
+    data: { labels: products.map(p=>p.name), datasets:[{ data:products.map(p=>p.sales), backgroundColor:prodColors, borderWidth:2, borderColor:'var(--surface)' }] },
     options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{display:false}} }
   });
 
@@ -787,7 +809,7 @@ function renderProduct(products) {
     const share = total > 0 ? Math.round(p.sales/total*100) : 0;
     return `<div class="prod-legend-item">
       <div class="prod-legend-left">
-        <div class="leg-sq" style="background:${colors[i%colors.length]}; width:10px; height:10px; border-radius:2px; flex-shrink:0"></div>
+        <div class="leg-sq" style="background:${prodColors[i]}; width:10px; height:10px; border-radius:2px; flex-shrink:0"></div>
         <div class="prod-legend-name">${p.name}</div>
       </div>
       <div class="prod-legend-right">
@@ -1096,6 +1118,8 @@ function switchMainTab(tab) {
       document.getElementById('setNewPw2').value = '';
     }
     document.getElementById('settingsMsg').textContent = '';
+    document.getElementById('manageFeeDisplay').textContent = '₩' + monthlyFee.toLocaleString('ko-KR');
+    document.getElementById('manageFeeInput').value = monthlyFee;
   }
   if (tab === 'report') renderReport();
 }
