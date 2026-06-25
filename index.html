@@ -304,52 +304,12 @@ tr:hover td { background: var(--surface2); }
   </div>
   <nav class="main-tabs">
     <button class="main-tab active" id="tab-dashboard" onclick="switchMainTab('dashboard')">📊 대시보드</button>
+    <button class="main-tab" id="tab-manage" onclick="switchMainTab('manage')">⚙️ 관리</button>
     <button class="main-tab" id="tab-report" onclick="switchMainTab('report')">📋 연도별 보고서</button>
   </nav>
 </header>
 
 <div id="dashboardPage">
-<!-- 패널 2칸 -->
-<div class="panel-row">
-  <!-- 상품 관리 -->
-  <div class="panel-box">
-    <div class="panel-header" onclick="togglePanel('costBody','costToggle')">
-      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>상품 관리</div>
-      <div class="toggle-icon" id="costToggle">▼</div>
-    </div>
-    <div class="panel-body" id="costBody">
-      <div id="costList"></div>
-      <div style="margin-top:10px; padding-top:10px; border-top:0.5px solid var(--border)">
-        <div style="font-size:11px; color:var(--text3); margin-bottom:8px; font-weight:500">새 상품 원가 추가</div>
-        <div style="display:flex; gap:6px; margin-bottom:6px">
-          <input class="cost-input" id="newCostName" placeholder="상품명 키워드">
-          <input class="cost-input" style="max-width:130px" id="newCostVal" placeholder="세트당 원가(원)" type="number">
-        </div>
-        <button class="cost-add-btn" style="width:100%" onclick="addCostItem()">+ 추가</button>
-        <div id="costAddMsg" style="font-size:11px; color:var(--text3); margin-top:5px;"></div>
-      </div>
-    </div>
-  </div>
-  <!-- 정산서 -->
-  <div class="panel-box">
-    <div class="panel-header" onclick="togglePanel('uploadBody','uploadToggle')">
-      <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>정산서</div>
-      <div class="toggle-icon" id="uploadToggle">▼</div>
-    </div>
-    <div class="panel-body" id="uploadBody">
-      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-        <div class="drop-icon">📂</div>
-        <div class="drop-label"><b>클릭 또는 드래그</b>하여 추가</div>
-        <div class="drop-sub">.xlsx · 여러 파일 동시 가능</div>
-        <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
-      </div>
-      <div class="file-list" id="fileList"></div>
-      <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
-      <div id="parseStatus" style="font-size:11px; color:var(--text3); margin-top:8px; text-align:center;"></div>
-    </div>
-  </div>
-</div>
-
 <main class="main">
   <div class="year-filter" id="yearFilter" style="margin-bottom:14px"></div>
   <div class="section-label" id="sectionLabel">전체 요약</div>
@@ -380,6 +340,48 @@ tr:hover td { background: var(--surface2); }
   </div>
 </main>
 </div><!-- /dashboardPage -->
+
+<div id="managePage" style="display:none; padding:20px 24px; max-width:860px">
+  <div class="panel-row" style="margin:0 0 12px">
+    <!-- 상품 관리 -->
+    <div class="panel-box">
+      <div class="panel-header" onclick="togglePanel('costBody','costToggle')">
+        <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>상품 관리</div>
+        <div class="toggle-icon" id="costToggle">▼</div>
+      </div>
+      <div class="panel-body open" id="costBody">
+        <div id="costList"></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500">새 상품 원가 추가</div>
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input class="cost-input" id="newCostName" placeholder="상품명 키워드">
+            <input class="cost-input" style="max-width:130px" id="newCostVal" placeholder="세트당 원가(원)" type="number">
+          </div>
+          <button class="cost-add-btn" style="width:100%" onclick="addCostItem()">+ 추가</button>
+          <div id="costAddMsg" style="font-size:11px;color:var(--text3);margin-top:5px;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 정산서 -->
+    <div class="panel-box">
+      <div class="panel-header" onclick="togglePanel('uploadBody','uploadToggle')">
+        <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>정산서 업로드</div>
+        <div class="toggle-icon" id="uploadToggle">▼</div>
+      </div>
+      <div class="panel-body open" id="uploadBody">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="drop-icon">📂</div>
+          <div class="drop-label"><b>클릭 또는 드래그</b>하여 추가</div>
+          <div class="drop-sub">.xlsx · 여러 파일 동시 가능</div>
+          <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+        </div>
+        <div class="file-list" id="fileList"></div>
+        <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
+        <div id="parseStatus" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="reportPage">
   <div class="report-year-tabs" id="reportYearTabs"></div>
@@ -703,11 +705,17 @@ function renderTabs(d) {
     </table></div>`;
   } else if (activeTab === 1) {
     html = `<div class="table-wrap"><table>
-      <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">이용료 차감</th><th class="num">월 실수익</th></tr></thead>
-      <tbody>${d.monthly.map(r => {
+      <thead><tr><th>월</th><th class="num">판매금액</th><th class="num">전월대비</th><th class="num">수수료</th><th class="num">정산금액</th><th class="num">이용료</th><th class="num">월 실수익</th></tr></thead>
+      <tbody>${d.monthly.map((r,i) => {
         const net = r.settlement - monthlyFee;
+        const prev = d.monthly[i-1];
+        const diff = prev ? r.sales - prev.sales : null;
+        const diffHtml = diff!==null
+          ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'}">${diff>=0?'+':''}₩${fmt(diff)}</span>`
+          : '–';
         return `<tr><td><b>${r.month}</b></td>
         <td class="num">₩${fmt(r.sales)}</td>
+        <td class="num">${diffHtml}</td>
         <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
         <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
           ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
@@ -936,11 +944,13 @@ function mergeSettlements(incoming) {
 let mainTab = 'dashboard';
 function switchMainTab(tab) {
   mainTab = tab;
-  document.getElementById('tab-dashboard').classList.toggle('active', tab==='dashboard');
-  document.getElementById('tab-report').classList.toggle('active', tab==='report');
+  ['dashboard','manage','report'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.classList.toggle('active', tab===t);
+  });
   document.getElementById('dashboardPage').classList.toggle('hide', tab!=='dashboard');
+  document.getElementById('managePage').style.display = tab==='manage' ? 'block' : 'none';
   document.getElementById('reportPage').classList.toggle('show', tab==='report');
-
   if (tab === 'report') renderReport();
 }
 
@@ -1021,42 +1031,6 @@ function renderReport() {
     </tr>`;
   }).join('');
 
-  /* ── 월별 비교 표 ── */
-  const monthRows = monthly.map((m,i) => {
-    const mo   = m.month.slice(5);
-    const prev = monthly[i-1];
-    const diff = prev ? m.sales - prev.sales : null;
-    const diffHtml = diff!==null
-      ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'};font-size:11px">${diff>=0?'+':''}₩${fmt(diff)}</span>`
-      : '–';
-    const netM = m.settlement - monthlyFee;
-    const settleHtml = m.settlement>0 ? '₩'+fmt(m.settlement) : '–';
-    const netHtml = m.settlement>0
-      ? `<span style="color:${netM>=0?'var(--green)':'var(--red)'};font-weight:600">₩${fmt(netM)}</span>`
-      : '–';
-    return `<tr>
-      <td><b>${mo}월</b><span style="color:var(--text3);font-size:10px"> (${m.rounds}회)</span></td>
-      <td class="num">₩${fmt(m.sales)}</td>
-      <td class="num" style="color:var(--amber)">₩${fmt(m.fee)}</td>
-      <td class="num" style="color:${m.settlement>0?'var(--green)':'var(--text3)'}">₩${fmt(m.settlement)>0?fmt(m.settlement):'0'}</td>
-      <td class="num">${diffHtml}</td>
-      <td class="num" style="color:var(--amber)">₩${fmt(monthlyFee)}</td>
-      <td class="num">${netHtml}</td>
-    </tr>`;
-  }).join('');
-
-  /* 월별 합계 */
-  const totalNet = totalSettle - monthly.length * monthlyFee;
-  const monthTfoot = `<tfoot><tr style="font-weight:600;background:var(--surface2)">
-    <td style="padding:10px 14px">합계</td>
-    <td class="num" style="padding:10px 14px">₩${fmt(totalSales)}</td>
-    <td class="num" style="padding:10px 14px;color:var(--amber)">₩${fmt(totalFee)}</td>
-    <td class="num" style="padding:10px 14px;color:var(--green)">₩${fmt(totalSettle)}</td>
-    <td class="num" style="padding:10px 14px">–</td>
-    <td class="num" style="padding:10px 14px;color:var(--amber)">₩${fmt(monthly.length*monthlyFee)}</td>
-    <td class="num" style="padding:10px 14px;color:${totalNet>=0?'var(--green)':'var(--red)'}">₩${fmt(totalNet)}</td>
-  </tr></tfoot>`;
-
   /* ── 수익성 바 + BEP 통합 ── */
   const bepProducts = products.map(p => {
     const feePerSet = p.qty>0 ? Math.round(p.feeShare/p.qty) : 0;
@@ -1076,16 +1050,21 @@ function renderReport() {
     const bepSection = p.bepQty ? `
       <div style="margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border)">
         <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.06em;margin-bottom:10px">⚖️ 손익분기점 분석</div>
-        <div class="bep-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:10px">
+        <div class="bep-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">
           <div class="bep-card">
-            <div class="bep-card-label">세트당 순이익</div>
-            <div class="bep-card-val ${p.netPerSet>=0?'g':'r'}">₩${fmt(p.netPerSet)}</div>
-            <div class="bep-card-sub">판매가−원가−수수료</div>
+            <div class="bep-card-label">실제 판매 수량</div>
+            <div class="bep-card-val ${p.bepQty&&p.achieved>=p.bepQty?'g':'a'}">${p.achieved}세트</div>
+            <div class="bep-card-sub">${reportYear}년 기준</div>
           </div>
           <div class="bep-card">
             <div class="bep-card-label">월 입점비 회수 필요 수량</div>
             <div class="bep-card-val">${p.bepQty}세트</div>
             <div class="bep-card-sub">월 이용료 ₩${fmt(monthlyFee)} 기준</div>
+          </div>
+          <div class="bep-card">
+            <div class="bep-card-label">달성률</div>
+            <div class="bep-card-val ${p.bepPct>=100?'g':'a'}">${p.bepPct}%</div>
+            <div class="bep-card-sub">${p.achieved}/${p.bepQty}세트</div>
           </div>
         </div>
         <div class="bep-progress">
@@ -1140,14 +1119,20 @@ function renderReport() {
   /* 전체 최종 보고 */
   const totalNetP = products.reduce((a,p)=>a+p.netProfit,0);
   const finalOk   = totalNetP >= 0;
+  const totalCost = products.reduce((a,p)=>a+p.cost,0);
+  const totalFeeForBep = products.reduce((a,p)=>a+p.feeShare,0);
   const finalReport = `
-    <div style="margin-top:16px;padding:14px 18px;background:${finalOk?'var(--green-bg)':'var(--red-bg)'};border:0.5px solid ${finalOk?'var(--green)':'var(--red)'};border-radius:var(--radius-lg);font-size:13px;line-height:1.8">
-      <div style="font-size:13px;font-weight:700;color:${finalOk?'var(--green)':'var(--red)'};margin-bottom:4px">📋 ${reportYear}년 최종 보고</div>
-      <b style="color:${finalOk?'var(--green)':'var(--red)'}">순이익 ₩${fmt(totalNetP)} · ${finalOk?'✅ 흑자':'❌ 적자'}</b>
-      &nbsp;—&nbsp;
+    <div style="margin-top:16px;padding:16px 20px;background:${finalOk?'var(--green-bg)':'var(--red-bg)'};border:0.5px solid ${finalOk?'var(--green)':'var(--red)'};border-radius:var(--radius-lg);font-size:13px;line-height:2">
+      <div style="font-size:14px;font-weight:700;color:${finalOk?'var(--green)':'var(--red)'};margin-bottom:6px">📋 ${reportYear}년 최종 보고</div>
+      총 정산금액 <b>₩${fmt(totalSettle)}</b>에서<br>
+      상품 원가 <b style="color:var(--amber)">₩${fmt(totalCost)}</b> +
+      수수료 <b style="color:var(--amber)">₩${fmt(totalFee)}</b>를 차감하면<br>
+      <b style="font-size:15px;color:${finalOk?'var(--green)':'var(--red)'}">
+        순이익 ₩${fmt(totalNetP)} · ${finalOk?'✅ 흑자':'❌ 적자'}
+      </b><br>
       ${finalOk
-        ? `연간 입점비(₩${fmt(12*monthlyFee)}) 대비 <b style="color:var(--green)">₩${fmt(totalNetP)}</b> 초과`
-        : `손익분기점까지 <b style="color:var(--red)">₩${fmt(Math.abs(totalNetP))}</b> 부족`}
+        ? `정산금액(₩${fmt(totalSettle)})이 원가+수수료(₩${fmt(totalCost+totalFee)})보다 <b style="color:var(--green)">₩${fmt(totalNetP)}</b> 많아 흑자예요.`
+        : `원가+수수료(₩${fmt(totalCost+totalFee)})가 정산금액(₩${fmt(totalSettle)})보다 <b style="color:var(--red)">₩${fmt(Math.abs(totalNetP))}</b> 많아 적자예요.`}
     </div>`;
 
   /* ── 인사이트 (한줄 요약에 포함) ── */
@@ -1183,6 +1168,13 @@ function renderReport() {
     </div>
 
     <div class="report-section">
+      <div class="report-section-title">📦 상품별 원가 기준 수익성 · 손익분기점</div>
+      <div class="profit-bar-wrap">${profitBars}</div>
+      ${marginFormula}
+      ${finalReport}
+    </div>
+
+    <div class="report-section">
       <div class="report-section-title">🧮 수수료율 산정 방법</div>
       <div class="fee-analysis">
         <table>
@@ -1195,29 +1187,8 @@ function renderReport() {
       </div>
       <div class="margin-explain" style="margin-top:10px">
         <b>수수료 구성 = idus 수수료(15%) + 결제수수료(결제수단별) + 부가세(수수료×10%)</b><br>
-        결제수단 비중에 따라 실효 수수료율이 회차마다 달라져요.
-      </div>
-    </div>
-
-    <div class="report-section">
-      <div class="report-section-title">📦 상품별 원가 기준 수익성 · 손익분기점</div>
-      <div class="profit-bar-wrap">${profitBars}</div>
-      ${marginFormula}
-      ${finalReport}
-    </div>
-
-    <div class="report-section">
-      <div class="report-section-title">📅 월별 상세 비교</div>
-      <div class="month-compare">
-        <table>
-          <thead><tr>
-            <th>월</th><th class="num">판매금액</th><th class="num">수수료</th>
-            <th class="num">정산금액</th><th class="num">전월대비</th>
-            <th class="num">월이용료</th><th class="num">실수익</th>
-          </tr></thead>
-          <tbody>${monthRows}</tbody>
-          ${monthTfoot}
-        </table>
+        결제수단 비중에 따라 실효 수수료율이 회차마다 달라져요.<br>
+        <b>실효율 계산 = (idus수수료 + 결제수수료 + 부가세) ÷ 판매금액 × 100</b>
       </div>
     </div>
   `;
