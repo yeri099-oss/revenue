@@ -283,9 +283,9 @@ const BUILTIN = {
     {tab:'2025-09-2차', year:'2025', month:'2025-09', sales:86400, fee:17614, settlement:68786, rate:20.39},
     {tab:'2025-09-1차', year:'2025', month:'2025-09', sales:115800,fee:23597, settlement:92203, rate:20.38},
     {tab:'2025-08-1차', year:'2025', month:'2025-08', sales:58800, fee:12031, settlement:46769, rate:20.46},
-    {tab:'2025-07-2차', year:'2025', month:'2025-07', sales:87300, fee:17829, settlement:0,     rate:20.42},
-    {tab:'2025-07-1차', year:'2025', month:'2025-07', sales:29400, fee:5983,  settlement:0,     rate:20.35},
-    {tab:'2025-06-1차', year:'2025', month:'2025-06', sales:57000, fee:11600, settlement:0,     rate:20.35},
+    {tab:'2025-07-2차', year:'2025', month:'2025-07', sales:87300, fee:17829, settlement:69471, rate:20.42},
+    {tab:'2025-07-1차', year:'2025', month:'2025-07', sales:29400, fee:5983,  settlement:23417, rate:20.35},
+    {tab:'2025-06-1차', year:'2025', month:'2025-06', sales:57000, fee:11600, settlement:45400, rate:20.35},
   ],
   products: [
     {name:'귀한 김부각 60g×3봉', fullName:'꽃밥에피다 귀한 김부각 60g * 3봉', qty:4, sales:114000, cost:51600, profit:62400},
@@ -745,38 +745,35 @@ async function parseAllFiles() {
 }
 
 function parseSheet(ws, tabName) {
-  const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1});
   let salesA=0, feeB=0, feeVat=0, settlement=0;
 
-  const KEYWORDS = ['판매금액 (A)', '수수료 합계 (B)', '판매대행 수수료 부가세',
-                    '최종 정산 지급금', '정산 지급 금액', '총 거래금액'];
+  rows.slice(0, 25).forEach(row => {
+    if (!Array.isArray(row)) return;
+    // 행 전체를 문자열로 합쳐서 키워드 포함 여부 확인 후 숫자 추출
+    const rowStr = row.map(v => String(v||'').replace(/\n/g,' ').trim());
 
-  rows.slice(0, 20).forEach(row => {
-    // 각 셀을 순서대로 보면서 키워드를 찾고, 바로 다음 숫자를 값으로 사용
-    for (let ci = 1; ci < row.length - 1; ci++) {
-      const label = String(row[ci]||'').replace(/\n/g,' ').trim();
-      // 이 셀이 키워드인지 확인
-      const isKeyword = KEYWORDS.some(k => label === k || label.includes(k));
-      if (!isKeyword) continue;
+    // 키워드가 있는 셀 찾기
+    rowStr.forEach((cell, ci) => {
+      // 숫자값 가져오기: 이 셀 이후 처음 나오는 양수 정수
+      const getVal = () => {
+        for (let vi = ci+1; vi < row.length; vi++) {
+          const v = row[vi];
+          if (v === null || v === undefined || v === '') continue;
+          const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/,/g,''));
+          if (!isNaN(n) && n > 0) return n;
+        }
+        return null;
+      };
 
-      // 키워드 바로 다음 열에서 숫자 찾기
-      let val = null;
-      for (let vi = ci+1; vi <= ci+2 && vi < row.length; vi++) {
-        const raw = row[vi];
-        if (raw === null || raw === undefined || raw === '') continue;
-        const n = parseFloat(String(raw).replace(/,/g,''));
-        if (!isNaN(n)) { val = n; break; }
+      if (cell === '판매금액 (A)') { const v=getVal(); if(v) salesA=v; }
+      else if (cell === '수수료 합계 (B)') { const v=getVal(); if(v) feeB=v; }
+      else if (cell.includes('판매대행 수수료 부가세')) { const v=getVal(); if(v) feeVat=v; }
+      else if (cell.includes('정산 지급 금액') || cell.includes('최종 정산 지급금')) {
+        const v=getVal(); if(v) settlement=v;
       }
-      if (val === null) continue;
-
-      if (label === '판매금액 (A)') salesA = val;
-      else if (label === '수수료 합계 (B)') feeB = val;
-      else if (label.includes('판매대행 수수료 부가세')) feeVat = val;
-      else if (label.includes('최종 정산 지급금') || label.includes('정산 지급 금액')) {
-        if (val > 0) settlement = val;
-      }
-      else if (label === '총 거래금액' && !salesA) salesA = val;
-    }
+      else if (cell === '총 거래금액' && !salesA) { const v=getVal(); if(v) salesA=v; }
+    });
   });
 
   if (!salesA) return null;
