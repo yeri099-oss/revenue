@@ -11,63 +11,69 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  /* 배경 — 매우 밝은 오프화이트 */
-  --bg: #F7F5F3;
+  --bg: #F5F5F5;
   --surface: #FFFFFF;
-  --surface2: #F0EDEB;
-  --surface3: #E8E3E0;
-
-  /* 테두리 — 얇고 절제된 */
-  --border: rgba(0,0,0,0.06);
-  --border2: rgba(0,0,0,0.12);
-
-  /* 텍스트 */
-  --text: #1C1412;
-  --text2: #6B5F5A;
-  --text3: #A89890;
-
-  /* 포인트: 버건디 */
-  --green: #8B1A2A;
-  --green-bg: #F5E8EA;
-  --green-light: #C4394E;
-
-  /* 서브 컬러 */
-  --amber: #9B6A00;
-  --amber-bg: #FBF3E3;
+  --surface2: #EFEFEF;
+  --surface3: #E5E5E5;
+  --border: rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.20);
+  --text: #111111;
+  --text2: #555555;
+  --text3: #999999;
+  --green: #444444;
+  --green-bg: #EEEEEE;
+  --green-light: #666666;
+  --color-sales: #111111;
+  --color-settle: #1A7F4B;
+  --color-settle-bg: #EAF5EE;
+  --color-fee: #B07D00;
+  --color-fee-bg: #FBF5E0;
+  --color-profit: #1A5FAF;
+  --color-profit-bg: #E8F0FA;
+  --color-loss: #C0392B;
+  --color-loss-bg: #FCECEA;
+  --amber: #B07D00;
+  --amber-bg: #FBF5E0;
   --red: #C0392B;
   --red-bg: #FCECEA;
-  --blue: #2C5F8A;
-  --blue-bg: #E8F0F8;
-
-  /* 형태 — 더 각진 미니멀 */
+  --blue: #1A5FAF;
+  --blue-bg: #E8F0FA;
   --radius: 6px;
   --radius-lg: 10px;
-
-  /* 그림자 */
-  --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141110;
-    --surface: #1E1A18;
-    --surface2: #272220;
-    --surface3: #312B28;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #F2EDE8;
-    --text2: #A89890;
-    --text3: #6B5F5A;
-    --green: #C4394E;
-    --green-bg: #2A1017;
-    --green-light: #E05068;
-    --amber: #D4960A;
-    --amber-bg: #281E08;
+    --bg: #141414;
+    --surface: #1E1E1E;
+    --surface2: #282828;
+    --surface3: #333333;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.16);
+    --text: #F0F0F0;
+    --text2: #AAAAAA;
+    --text3: #666666;
+    --green: #BBBBBB;
+    --green-bg: #2A2A2A;
+    --green-light: #999999;
+    --color-sales: #F0F0F0;
+    --color-settle: #2ECC71;
+    --color-settle-bg: #0D2E1A;
+    --color-fee: #F0C040;
+    --color-fee-bg: #2A1E00;
+    --color-profit: #5B9FE0;
+    --color-profit-bg: #0E1E30;
+    --color-loss: #E05068;
+    --color-loss-bg: #2A0E0E;
+    --amber: #F0C040;
+    --amber-bg: #2A1E00;
     --red: #E05068;
     --red-bg: #2A0E0E;
-    --blue: #5A9DD4;
-    --blue-bg: #0E1E2E;
+    --blue: #5B9FE0;
+    --blue-bg: #0E1E30;
   }
 }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; letter-spacing: -0.01em; }
 
@@ -79,7 +85,7 @@ body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sa
 /* YEAR FILTER */
 .year-filter { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .year-btn { font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 3px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em; }
-.year-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.year-btn.active { background: var(--green); color: #fff; border-color: var(--text2); }
 .year-btn:hover:not(.active) { color: var(--text); border-color: var(--text); }
 
 /* PANEL ROW */
@@ -95,10 +101,10 @@ body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sa
 .panel-body.open { display: block; }
 
 .drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
-.drop-zone:hover, .drop-zone.dragging { border-color: var(--green); background: var(--green-bg); }
+.drop-zone:hover, .drop-zone.dragging { border-color: var(--text2); background: var(--surface2); }
 .drop-icon { font-size: 28px; margin-bottom: 8px; }
 .drop-label { font-size: 13px; color: var(--text2); }
-.drop-label b { color: var(--green); font-weight: 700; }
+.drop-label b { color: var(--text); font-weight: 700; }
 .drop-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 .file-input { display: none; }
 
@@ -112,9 +118,9 @@ body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sa
 .file-date-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .file-date-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
 .file-date-sel { font-size: 12px; padding: 4px 7px; border: 0.5px solid var(--border2); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; }
-.file-date-sel:focus { outline: none; border-color: var(--green); }
+.file-date-sel:focus { outline: none; border-color: var(--text2); }
 .file-round-sel { font-size: 12px; padding: 4px 7px; border: 0.5px solid var(--border2); border-radius: 6px; background: var(--surface); color: var(--text); cursor: pointer; }
-.file-round-sel:focus { outline: none; border-color: var(--green); }
+.file-round-sel:focus { outline: none; border-color: var(--text2); }
 .file-date-ok { font-size: 11px; font-weight: 600; padding: 4px 10px; border: none; border-radius: 6px; background: var(--green); color: #fff; cursor: pointer; white-space: nowrap; }
 .file-date-ok:hover { opacity: 0.85; }
 .file-status { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
@@ -173,8 +179,8 @@ td { padding: 11px 16px; border-top: 1px solid var(--border); color: var(--text)
 tr:hover td { background: var(--surface2); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-.badge-g { background: var(--green-bg); color: var(--green); }
-.badge-a { background: var(--amber-bg); color: var(--amber); }
+.badge-g { background: var(--color-settle-bg); color: var(--color-settle); }
+.badge-a { background: var(--color-fee-bg); color: var(--color-fee); }
 .badge-r { background: var(--red-bg); color: var(--red); }
 
 /* EMPTY */
@@ -197,7 +203,7 @@ tr:hover td { background: var(--surface2); }
 }
 /* COST / UPLOAD INPUTS */
 .cost-input { width: 100%; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); }
-.cost-input:focus { outline: none; border-color: var(--green); }
+.cost-input:focus { outline: none; border-color: var(--text2); }
 .cost-add-btn { padding: 8px 16px; font-size: 11px; font-weight: 700; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; letter-spacing: 0.04em; }
 .cost-add-btn:hover { opacity: 0.85; }
 .cost-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 5px; font-size: 12px; }
@@ -229,7 +235,7 @@ tr:hover td { background: var(--surface2); }
 
 .report-year-tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
 .ry-btn { font-size: 13px; font-weight: 500; padding: 6px 18px; border: 0.5px solid var(--border2); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
-.ry-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.ry-btn.active { background: var(--green); color: #fff; border-color: var(--text2); }
 
 /* REPORT SECTIONS */
 .report-section { margin-bottom: 28px; }
@@ -240,10 +246,10 @@ tr:hover td { background: var(--surface2); }
 
 .summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .stag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-.stag-g { background: var(--green-bg); color: var(--green); }
-.stag-a { background: var(--amber-bg); color: var(--amber); }
-.stag-r { background: var(--red-bg); color: var(--red); }
-.stag-b { background: var(--blue-bg); color: var(--blue); }
+.stag-g { background: var(--color-settle-bg); color: var(--color-settle); }
+.stag-a { background: var(--color-fee-bg); color: var(--color-fee); }
+.stag-r { background: var(--color-loss-bg); color: var(--color-loss); }
+.stag-b { background: var(--color-profit-bg); color: var(--color-profit); }
 
 /* KPI 그리드 */
 .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 10px; }
@@ -272,9 +278,9 @@ tr:hover td { background: var(--surface2); }
 .profit-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
 .profit-item-detail { font-size: 11px; color: var(--text3); }
 .profit-bar-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; display: flex; }
-.profit-bar-cost { height: 100%; background: var(--amber); border-radius: 4px 0 0 4px; transition: width 0.4s; }
+.profit-bar-cost { height: 100%; background: var(--color-fee); border-radius: 4px 0 0 4px; transition: width 0.4s; }
 .profit-bar-fee { height: 100%; background: #D85A30; transition: width 0.4s; }
-.profit-bar-profit { height: 100%; background: var(--green); border-radius: 0 4px 4px 0; transition: width 0.4s; }
+.profit-bar-profit { height: 100%; background: var(--color-profit); border-radius: 0 4px 4px 0; transition: width 0.4s; }
 .profit-bar-legend { display: flex; gap: 12px; margin-top: 6px; }
 .profit-bar-legend span { font-size: 10px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
 .profit-bar-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
@@ -309,9 +315,9 @@ tr:hover td { background: var(--surface2); }
 .bep-progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
 .bep-track { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
 .bep-fill { height: 100%; border-radius: 5px; transition: width 0.5s; }
-.bep-result { background: var(--green-bg); border: 0.5px solid var(--green); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--text); line-height: 1.7; }
+.bep-result { background: var(--color-profit-bg); border: 1px solid var(--color-profit); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--text); line-height: 1.7; }
 .bep-result b { color: var(--green); }
-.bep-result.warn { background: var(--amber-bg); border-color: var(--amber); }
+.bep-result.warn { background: var(--color-fee-bg); border-color: var(--color-fee); }
 .bep-result.warn b { color: var(--amber); }
 .bep-formula { font-size: 11px; color: var(--text3); margin-top: 12px; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); line-height: 1.8; }
 /* 표 컬럼 정렬 */
@@ -330,7 +336,7 @@ tr:hover td { background: var(--surface2); }
 .login-field { margin-bottom:14px; }
 .login-label { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:5px; display:block; }
 .login-input { width:100%; padding:10px 14px; font-size:14px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--surface); color:var(--text); outline:none; transition:border-color 0.15s; }
-.login-input:focus { border-color:var(--green); }
+.login-input:focus { border-color: var(--text2); }
 .login-btn { width:100%; padding:11px; font-size:14px; font-weight:700; border:none; border-radius:var(--radius); background:var(--green); color:#fff; cursor:pointer; margin-top:8px; transition:opacity 0.15s; }
 .login-btn:hover { opacity:0.88; }
 .login-err { font-size:12px; color:var(--red); margin-top:8px; text-align:center; min-height:18px; }
@@ -341,7 +347,7 @@ tr:hover td { background: var(--surface2); }
 .settings-field { margin-bottom:12px; }
 .settings-label { font-size:11px; font-weight:600; color:var(--text3); margin-bottom:4px; display:block; }
 .settings-input { width:100%; padding:8px 12px; font-size:13px; border:0.5px solid var(--border2); border-radius:var(--radius); background:var(--surface); color:var(--text); outline:none; }
-.settings-input:focus { border-color:var(--green); }
+.settings-input:focus { border-color: var(--text2); }
 .settings-btn { padding:8px 20px; font-size:13px; font-weight:600; border:none; border-radius:var(--radius); background:var(--green); color:#fff; cursor:pointer; }
 .settings-btn:hover { opacity:0.88; }
 .settings-msg { font-size:12px; margin-top:8px; min-height:18px; }
@@ -397,9 +403,9 @@ tr:hover td { background: var(--surface2); }
   <div class="chart-card">
     <div class="chart-title">월별 매출 추이</div>
     <div class="chart-legend">
-      <div class="leg"><div class="leg-sq" style="background:#8B1A2A"></div>판매금액</div>
-      <div class="leg"><div class="leg-sq" style="background:#9B6A00"></div>정산금액</div>
-      <div class="leg"><div class="leg-sq" style="background:#2C5F8A"></div>수수료</div>
+      <div class="leg"><div class="leg-sq" style="background:#111111"></div>판매금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#1A7F4B"></div>정산금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#B07D00"></div>수수료</div>
     </div>
     <div class="chart-wrap" style="height:220px"><canvas id="monthlyChart" role="img" aria-label="월별 매출 추이">월별 판매·정산·수수료 차트</canvas></div>
   </div>
@@ -569,7 +575,7 @@ function addCostItem() {
   costMaster.push({keyword: name, name: name, costPerSet: val});
   document.getElementById('newCostName').value = '';
   document.getElementById('newCostVal').value = '';
-  msg.textContent = '✅ 추가됐어요!'; msg.style.color='var(--green)';
+  msg.textContent = '✅ 추가됐어요!'; msg.style.color='var(--color-profit)';
   setTimeout(() => { msg.textContent = ''; }, 2000);
   renderCostList();
   render();
@@ -710,13 +716,13 @@ function render() {
 
 function renderSummary(d) {
   const cards = [
-    {label:'총 판매금액', value:'₩'+fmt(d.totalSales), cls:'', sub:`정산 ${d.settlements.length}회`},
-    {label:'총 정산금액', value:'₩'+fmt(d.totalSettle), cls:'green', sub:'수취 확정분'},
-    {label:'총 수수료', value:'₩'+fmt(d.totalFee), cls:'amber', sub:`평균 ${pct(d.avgRate)}`},
-    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), cls: d.netSettle>=0?'green':'red', sub:'정산금 - 연이용료'},
+    {label:'총 판매금액', value:'₩'+fmt(d.totalSales), color:'var(--color-sales)', sub:`정산 ${d.settlements.length}회`},
+    {label:'총 정산금액', value:'₩'+fmt(d.totalSettle), color:'var(--color-settle)', sub:'수취 확정분'},
+    {label:'총 수수료', value:'₩'+fmt(d.totalFee), color:'var(--color-fee)', sub:`평균 ${pct(d.avgRate)}`},
+    {label:'이용료 반영 실수익', value:'₩'+fmt(d.netSettle), color: d.netSettle>=0?'var(--color-profit)':'var(--color-loss)', sub:'정산금 - 연이용료'},
   ];
   const cardHtml = cards.map(c =>
-    `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value ${c.cls}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
+    `<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-value" style="color:${c.color}">${c.value}</div><div class="metric-sub">${c.sub}</div></div>`
   ).join('');
   // 월이용료 카드 (인라인 수정 UI 포함)
   const feeCard = `<div class="metric-card">
@@ -748,9 +754,9 @@ function renderMonthly(monthly) {
     data: {
       labels,
       datasets: [
-        {label:'판매금액', data:monthly.map(m=>m.sales), backgroundColor:'rgba(139,26,42,0.15)', borderColor:'#8B1A2A', borderWidth:1.5},
-        {label:'정산금액', data:monthly.map(m=>m.settlement), backgroundColor:'rgba(155,106,0,0.15)', borderColor:'#9B6A00', borderWidth:1.5},
-        {label:'수수료',   data:monthly.map(m=>m.fee),        backgroundColor:'rgba(44,95,138,0.15)', borderColor:'#2C5F8A', borderWidth:1.5},
+        {label:'판매금액', data:monthly.map(m=>m.sales), backgroundColor:'rgba(17,17,17,0.15)', borderColor:'#111111', borderWidth:1.5},
+        {label:'정산금액', data:monthly.map(m=>m.settlement), backgroundColor:'rgba(26,127,75,0.2)', borderColor:'#1A7F4B', borderWidth:1.5},
+        {label:'수수료',   data:monthly.map(m=>m.fee),        backgroundColor:'rgba(176,125,0,0.2)', borderColor:'#B07D00', borderWidth:1.5},
       ]
     },
     options: {
@@ -766,7 +772,7 @@ function renderMonthly(monthly) {
 
 function renderProduct(products) {
   if (charts.product) { charts.product.destroy(); charts.product = null; }
-  const colors = ['#8B1A2A','#C4394E','#9B6A00','#2C5F8A','#6B4F8A'];
+  const colors = ['#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA'];
   const total = products.reduce((a,p)=>a+p.sales,0);
 
   // 도넛 차트
@@ -812,8 +818,8 @@ function renderTabs(d) {
           <td><b>${r.tab}</b></td>
           ${showYear ? `<td>${r.year}</td>` : ''}
           <td class="num">₩${fmt(r.sales)}</td>
-          <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
-          <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
+          <td class="num" style="color:var(--color-fee)">₩${fmt(r.fee)}</td>
+          <td class="num" style="color:${r.settlement>0?'var(--color-settle)':'var(--text3)'}">
             ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
           <td class="num">${pct(r.rate)}</td>
           <td><span class="badge ${r.settlement>0?'badge-g':'badge-a'}">${r.settlement>0?'정산완료':'대기중'}</span></td>
@@ -823,8 +829,8 @@ function renderTabs(d) {
       <tfoot><tr style="font-weight:600">
         <td colspan="${showYear ? 2 : 1}" style="padding:10px 14px; color:var(--text2)">합계</td>
         <td class="num" style="padding:10px 14px">₩${fmt(d.totalSales)}</td>
-        <td class="num" style="padding:10px 14px; color:var(--amber)">₩${fmt(d.totalFee)}</td>
-        <td class="num" style="padding:10px 14px; color:var(--green)">₩${fmt(d.totalSettle)}</td>
+        <td class="num" style="padding:10px 14px; color:var(--color-fee)">₩${fmt(d.totalFee)}</td>
+        <td class="num" style="padding:10px 14px; color:var(--color-settle)">₩${fmt(d.totalSettle)}</td>
         <td class="num" style="padding:10px 14px">${pct(d.avgRate)}</td>
         <td></td>
       </tr></tfoot>
@@ -837,16 +843,16 @@ function renderTabs(d) {
         const prev = d.monthly[i-1];
         const diff = prev ? r.sales - prev.sales : null;
         const diffHtml = diff!==null
-          ? `<span style="color:${diff>=0?'var(--green)':'var(--red)'}">${diff>=0?'+':''}₩${fmt(diff)}</span>`
+          ? `<span style="color:${diff>=0?'var(--color-profit)':'var(--color-loss)'}">${diff>=0?'+':''}₩${fmt(diff)}</span>`
           : '–';
         return `<tr><td><b>${r.month}</b></td>
         <td class="num">₩${fmt(r.sales)}</td>
         <td class="num">${diffHtml}</td>
-        <td class="num" style="color:var(--amber)">₩${fmt(r.fee)}</td>
-        <td class="num" style="color:${r.settlement>0?'var(--green)':'var(--text3)'}">
+        <td class="num" style="color:var(--color-fee)">₩${fmt(r.fee)}</td>
+        <td class="num" style="color:${r.settlement>0?'var(--color-settle)':'var(--text3)'}">
           ${r.settlement>0?'₩'+fmt(r.settlement):'–'}</td>
-        <td class="num" style="color:var(--amber)">₩${fmt(monthlyFee)}</td>
-        <td class="num" style="color:${r.settlement>0?(net>=0?'var(--green)':'var(--red)'):'var(--text3)'}; font-weight:600">
+        <td class="num" style="color:var(--color-fee)">₩${fmt(monthlyFee)}</td>
+        <td class="num" style="color:${r.settlement>0?(net>=0?'var(--color-profit)':'var(--red)'):'var(--text3)'}; font-weight:600">
           ${r.settlement>0?'₩'+fmt(net):'–'}</td>
         </tr>`;
       }).join('')}
@@ -861,7 +867,7 @@ function renderTabs(d) {
           <td style="max-width:200px; white-space:normal; line-height:1.4">${p.fullName||p.name}</td>
           <td class="num">${p.qty}개</td>
           <td class="num">₩${fmt(p.sales)}</td>
-          <td class="num" style="color:var(--amber)">₩${fmt(p.cost)}</td>
+          <td class="num" style="color:var(--color-fee)">₩${fmt(p.cost)}</td>
           <td class="num" style="color:var(--green); font-weight:600">₩${fmt(p.profit)}</td>
           <td class="num"><span class="badge badge-g">${margin}%</span></td>
         </tr>`;
@@ -1190,7 +1196,7 @@ function renderReport() {
     const costPct  = Math.min(100, Math.round(p.cost/total*100));
     const feePct   = Math.min(100-costPct, Math.round(p.feeShare/total*100));
     const profPct  = Math.max(0, 100-costPct-feePct);
-    const marginCls= p.margin>=20?'var(--green)':p.margin>=0?'var(--amber)':'var(--red)';
+    const marginCls= p.margin>=20?'var(--color-profit)':p.margin>=0?'var(--color-fee)':'var(--red)';
     const bepSection = p.bepQty ? `
       <div style="margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border)">
         <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:0.06em;margin-bottom:10px">⚖️ 손익분기점 분석</div>
@@ -1214,12 +1220,12 @@ function renderReport() {
         <div class="bep-progress">
           <div class="bep-progress-label">
             <span>입점비 회수 진행률</span>
-            <span style="font-weight:600;color:${p.bepPct>=100?'var(--green)':'var(--amber)'}">
+            <span style="font-weight:600;color:${p.bepPct>=100?'var(--color-profit)':'var(--color-fee)'}">
               ${p.achieved}/${p.bepQty}세트 (${p.bepPct}%)
             </span>
           </div>
           <div class="bep-track">
-            <div class="bep-fill" style="width:${p.bepPct}%;background:${p.bepPct>=100?'var(--green)':'var(--amber)'}"></div>
+            <div class="bep-fill" style="width:${p.bepPct}%;background:${p.bepPct>=100?'var(--color-profit)':'var(--color-fee)'}"></div>
           </div>
         </div>
         <div class="bep-result ${p.bepPct<100?'warn':''}" style="margin-top:8px">
@@ -1235,7 +1241,7 @@ function renderReport() {
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;font-size:11px">
         <div style="color:var(--text3)">판매가<br><b style="font-size:13px;color:var(--text)">₩${fmt(p.sales)}</b></div>
-        <div style="color:var(--text3)">원가<br><b style="font-size:13px;color:var(--amber)">₩${fmt(p.cost)}</b></div>
+        <div style="color:var(--text3)">원가<br><b style="font-size:13px;color:var(--color-fee)">₩${fmt(p.cost)}</b></div>
         <div style="color:var(--text3)">수수료<br><b style="font-size:13px;color:#D85A30">₩${fmt(p.feeShare)}</b></div>
         <div style="color:var(--text3)">순이익<br><b style="font-size:13px;color:${marginCls}">₩${fmt(p.netProfit)}</b></div>
       </div>
@@ -1266,16 +1272,16 @@ function renderReport() {
   const totalCost = products.reduce((a,p)=>a+p.cost,0);
   const totalFeeForBep = products.reduce((a,p)=>a+p.feeShare,0);
   const finalReport = `
-    <div style="margin-top:16px;padding:16px 20px;background:${finalOk?'var(--green-bg)':'var(--red-bg)'};border:0.5px solid ${finalOk?'var(--green)':'var(--red)'};border-radius:var(--radius-lg);font-size:13px;line-height:2">
-      <div style="font-size:14px;font-weight:700;color:${finalOk?'var(--green)':'var(--red)'};margin-bottom:6px">📋 ${reportYear}년 최종 보고</div>
+    <div style="margin-top:16px;padding:16px 20px;background:${finalOk?'var(--green-bg)':'var(--red-bg)'};border:0.5px solid ${finalOk?'var(--color-profit)':'var(--color-loss)'};border-radius:var(--radius-lg);font-size:13px;line-height:2">
+      <div style="font-size:14px;font-weight:700;color:${finalOk?'var(--color-profit)':'var(--color-loss)'};margin-bottom:6px">📋 ${reportYear}년 최종 보고</div>
       총 정산금액 <b>₩${fmt(totalSettle)}</b>에서<br>
-      상품 원가 <b style="color:var(--amber)">₩${fmt(totalCost)}</b> +
-      수수료 <b style="color:var(--amber)">₩${fmt(totalFee)}</b>를 차감하면<br>
-      <b style="font-size:15px;color:${finalOk?'var(--green)':'var(--red)'}">
+      상품 원가 <b style="color:var(--color-fee)">₩${fmt(totalCost)}</b> +
+      수수료 <b style="color:var(--color-fee)">₩${fmt(totalFee)}</b>를 차감하면<br>
+      <b style="font-size:15px;color:${finalOk?'var(--color-profit)':'var(--color-loss)'}">
         순이익 ₩${fmt(totalNetP)} · ${finalOk?'✅ 흑자':'❌ 적자'}
       </b><br>
       ${finalOk
-        ? `정산금액(₩${fmt(totalSettle)})이 원가+수수료(₩${fmt(totalCost+totalFee)})보다 <b style="color:var(--green)">₩${fmt(totalNetP)}</b> 많아 흑자예요.`
+        ? `정산금액(₩${fmt(totalSettle)})이 원가+수수료(₩${fmt(totalCost+totalFee)})보다 <b style="color:var(--color-settle)">₩${fmt(totalNetP)}</b> 많아 흑자예요.`
         : `원가+수수료(₩${fmt(totalCost+totalFee)})가 정산금액(₩${fmt(totalSettle)})보다 <b style="color:var(--red)">₩${fmt(Math.abs(totalNetP))}</b> 많아 적자예요.`}
     </div>`;
 
@@ -1303,8 +1309,8 @@ function renderReport() {
       <div class="report-section-title">💰 핵심 지표</div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">총 판매금액</div><div class="kpi-val">₩${fmt(totalSales)}</div><div class="kpi-sub">${s.length}회 정산</div></div>
-        <div class="kpi-card"><div class="kpi-label">총 정산금액</div><div class="kpi-val g">₩${fmt(totalSettle)}</div><div class="kpi-sub">수취 확정</div></div>
-        <div class="kpi-card"><div class="kpi-label">총 수수료</div><div class="kpi-val a">₩${fmt(totalFee)}</div><div class="kpi-sub">평균 ${avgRate.toFixed(2)}%</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 정산금액</div><div class="kpi-val" style="color:var(--color-settle)">₩${fmt(totalSettle)}</div><div class="kpi-sub">수취 확정</div></div>
+        <div class="kpi-card"><div class="kpi-label">총 수수료</div><div class="kpi-val" style="color:var(--color-fee)">₩${fmt(totalFee)}</div><div class="kpi-sub">평균 ${avgRate.toFixed(2)}%</div></div>
         <div class="kpi-card"><div class="kpi-label">이용료 차감 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(netSettle)}</div><div class="kpi-sub">정산금−이용료</div></div>
         <div class="kpi-card"><div class="kpi-label">월평균 판매금액</div><div class="kpi-val">₩${fmt(Math.round(totalSales/monthly.length))}</div><div class="kpi-sub">${monthly.length}개월</div></div>
         <div class="kpi-card"><div class="kpi-label">월평균 실수익</div><div class="kpi-val ${netSettle>=0?'g':'r'}">₩${fmt(Math.round(netSettle/monthly.length))}</div><div class="kpi-sub">이용료 차감</div></div>
@@ -1417,7 +1423,7 @@ async function saveCredentials() {
   const ok = await saveCred(newId, newPw);
   if (ok) {
     sessionStorage.setItem('idus_cred', JSON.stringify({id:newId, pw:newPw}));
-    msg.style.color='var(--green)'; msg.textContent='✅ 저장됐어요!';
+    msg.style.color='var(--color-profit)'; msg.textContent='✅ 저장됐어요!';
     setTimeout(()=>{ msg.textContent=''; }, 2500);
   } else {
     msg.style.color='var(--red)'; msg.textContent='저장 실패. 네트워크를 확인해주세요.';
