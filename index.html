@@ -167,7 +167,12 @@ tr:hover td { background: var(--surface2); }
 .no-year-data { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 48px 20px; text-align: center; color: var(--text3); font-size: 13px; margin-bottom: 20px; }
 
 @media (max-width: 540px) {
-  .header { padding: 0 14px; }
+  .header { padding: 0 12px; gap: 8px; flex-wrap: wrap; height: auto; min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
+  .header-logo { font-size: 13px; }
+  .main-tabs { gap: 2px; }
+  .main-tab { font-size: 12px; padding: 5px 10px; }
+  .year-filter { margin-left: 0 !important; }
+  .year-btn { font-size: 11px; padding: 4px 10px; }
   .main { padding: 0 14px 40px; }
   .panel-row { margin: 14px 14px 0; }
   .card-grid { grid-template-columns: 1fr 1fr; }
