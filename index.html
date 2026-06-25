@@ -555,6 +555,7 @@ function addCostItem() {
   setTimeout(() => { msg.textContent = ''; }, 2000);
   renderCostList();
   render();
+  saveCostMaster();
 }
 
 function editCostItem(i) {
@@ -566,6 +567,7 @@ function editCostItem(i) {
   costMaster[i].costPerSet = parsed;
   renderCostList();
   render();
+  saveCostMaster();
 }
 
 function delCostItem(i) {
@@ -573,6 +575,7 @@ function delCostItem(i) {
   costMaster.splice(i, 1);
   renderCostList();
   render();
+  saveCostMaster();
 }
 
 function togglePanel(bodyId, iconId) {
@@ -606,6 +609,7 @@ function saveFee() {
   document.getElementById('feeDisplay').textContent = '₩' + v.toLocaleString('ko-KR');
   cancelFee();
   render();
+  saveMonthlyFee(v);
 }
 function cancelFee() {
   document.getElementById('feeDisplay').style.display = '';
@@ -960,6 +964,7 @@ async function parseAllFiles() {
 
   if (newSettlements.length) {
     mergeSettlements(newSettlements);
+    await saveSettlements();
     buildYearFilter();
     render();
     status.textContent = `✅ ${newSettlements.length}개 정산 회차 추가 완료`;
@@ -1416,7 +1421,74 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function initApp() {
+/* ══════════════════════════════════════
+   Firestore 데이터 동기화
+══════════════════════════════════════ */
+
+// 로딩 표시
+function showLoading(msg) {
+  let el = document.getElementById('appLoading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'appLoading';
+    el.style.cssText = 'position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:8000;gap:12px;font-size:13px;color:var(--text2)';
+    el.innerHTML = '<div style="font-size:28px">🌸</div><div id="appLoadingMsg"></div>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('appLoadingMsg').textContent = msg || '데이터 불러오는 중...';
+}
+function hideLoading() {
+  const el = document.getElementById('appLoading');
+  if (el) el.remove();
+}
+
+// Firestore → allData, costMaster, monthlyFee 로드
+async function loadAppData() {
+  try {
+    const [settDoc, costDoc, setDoc] = await Promise.all([
+      db.doc('data/settlements').get(),
+      db.doc('data/costMaster').get(),
+      db.doc('data/appSettings').get(),
+    ]);
+    if (settDoc.exists && settDoc.data().list?.length) {
+      allData.settlements = settDoc.data().list;
+    }
+    if (costDoc.exists && costDoc.data().list?.length) {
+      costMaster = costDoc.data().list;
+    }
+    if (setDoc.exists && setDoc.data().monthlyFee) {
+      monthlyFee = setDoc.data().monthlyFee;
+    }
+  } catch(e) {
+    console.warn('Firestore 데이터 로드 실패, 내장 데이터 사용', e);
+  }
+}
+
+// Firestore ← allData 저장
+async function saveSettlements() {
+  try {
+    await db.doc('data/settlements').set({ list: allData.settlements });
+  } catch(e) { console.error('정산 데이터 저장 실패', e); }
+}
+
+// Firestore ← costMaster 저장
+async function saveCostMaster() {
+  try {
+    await db.doc('data/costMaster').set({ list: costMaster });
+  } catch(e) { console.error('원가 데이터 저장 실패', e); }
+}
+
+// Firestore ← monthlyFee 저장
+async function saveMonthlyFee(fee) {
+  try {
+    await db.doc('data/appSettings').set({ monthlyFee: fee }, { merge: true });
+  } catch(e) { console.error('이용료 저장 실패', e); }
+}
+
+async function initApp() {
+  showLoading('데이터 불러오는 중...');
+  await loadAppData();
+  hideLoading();
   renderCostList();
   buildYearFilter();
   render();
@@ -1427,7 +1499,6 @@ if (sessionStorage.getItem('idus_loggedin') === '1') {
   document.getElementById('loginPage').style.display = 'none';
   initApp();
 }
-// 로그인 안 된 상태에선 loginPage가 화면을 덮고 있음
 
 </script>
 </body>
