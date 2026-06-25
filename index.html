@@ -11,76 +11,94 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --bg: #f8f7f4;
-  --surface: #ffffff;
-  --surface2: #f2f0ec;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.14);
-  --text: #1a1916;
-  --text2: #6b6860;
-  --text3: #9e9b95;
-  --green: #1D9E75;
-  --green-bg: #EAF6F0;
-  --amber: #BA7517;
-  --amber-bg: #FDF3E0;
-  --red: #A32D2D;
-  --red-bg: #FCEBEB;
-  --blue: #185FA5;
-  --blue-bg: #EBF3FB;
-  --radius: 10px;
-  --radius-lg: 14px;
+  /* 배경 — 매우 밝은 오프화이트 */
+  --bg: #F7F5F3;
+  --surface: #FFFFFF;
+  --surface2: #F0EDEB;
+  --surface3: #E8E3E0;
+
+  /* 테두리 — 얇고 절제된 */
+  --border: rgba(0,0,0,0.06);
+  --border2: rgba(0,0,0,0.12);
+
+  /* 텍스트 */
+  --text: #1C1412;
+  --text2: #6B5F5A;
+  --text3: #A89890;
+
+  /* 포인트: 버건디 */
+  --green: #8B1A2A;
+  --green-bg: #F5E8EA;
+  --green-light: #C4394E;
+
+  /* 서브 컬러 */
+  --amber: #9B6A00;
+  --amber-bg: #FBF3E3;
+  --red: #C0392B;
+  --red-bg: #FCECEA;
+  --blue: #2C5F8A;
+  --blue-bg: #E8F0F8;
+
+  /* 형태 — 더 각진 미니멀 */
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  /* 그림자 */
+  --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161614;
-    --surface: #1f1e1c;
-    --surface2: #2a2927;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #f0ede8;
-    --text2: #a09d97;
-    --text3: #6b6860;
-    --green: #2DC890;
-    --green-bg: #0d3322;
-    --amber: #EF9F27;
-    --amber-bg: #2e1f05;
-    --red: #E24B4A;
-    --red-bg: #2d0e0e;
-    --blue: #5DA6F0;
-    --blue-bg: #0d2340;
+    --bg: #141110;
+    --surface: #1E1A18;
+    --surface2: #272220;
+    --surface3: #312B28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #F2EDE8;
+    --text2: #A89890;
+    --text3: #6B5F5A;
+    --green: #C4394E;
+    --green-bg: #2A1017;
+    --green-light: #E05068;
+    --amber: #D4960A;
+    --amber-bg: #281E08;
+    --red: #E05068;
+    --red-bg: #2A0E0E;
+    --blue: #5A9DD4;
+    --blue-bg: #0E1E2E;
   }
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+body { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; letter-spacing: -0.01em; }
 
 /* HEADER */
-.header { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 20px; height: 56px; position: sticky; top: 0; z-index: 100; }
-.header-logo { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border2); padding: 0 28px; display: flex; align-items: center; gap: 24px; height: 52px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 var(--border); }
+.header-logo { font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; white-space: nowrap; letter-spacing: -0.02em; }
 .header-logo span { font-size: 18px; }
 
 /* YEAR FILTER */
-.year-filter { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.year-btn { font-size: 12px; font-weight: 500; padding: 5px 16px; border-radius: 20px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.year-filter { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.year-btn { font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 3px; border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.12s; letter-spacing: 0.02em; }
 .year-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
-.year-btn:hover:not(.active) { color: var(--text); border-color: var(--text2); }
+.year-btn:hover:not(.active) { color: var(--text); border-color: var(--text); }
 
 /* PANEL ROW */
 .panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 24px 0; }
 @media (max-width: 680px) { .panel-row { grid-template-columns: 1fr; } }
-.panel-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; cursor: pointer; user-select: none; }
 .panel-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
 .panel-dot { width: 7px; height: 7px; border-radius: 50%; }
 .toggle-icon { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
 .toggle-icon.open { transform: rotate(180deg); }
-.panel-body { border-top: 0.5px solid var(--border); padding: 14px 16px; display: none; }
+.panel-body { border-top: 1px solid var(--border); padding: 16px 18px; display: none; }
 .panel-body.open { display: block; }
 
 .drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
 .drop-zone:hover, .drop-zone.dragging { border-color: var(--green); background: var(--green-bg); }
 .drop-icon { font-size: 28px; margin-bottom: 8px; }
 .drop-label { font-size: 13px; color: var(--text2); }
-.drop-label b { color: var(--green); font-weight: 600; }
+.drop-label b { color: var(--green); font-weight: 700; }
 .drop-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 .file-input { display: none; }
 
@@ -105,7 +123,7 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .file-remove { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 16px; padding: 2px 6px; border-radius: 4px; }
 .file-remove:hover { background: var(--surface2); color: var(--red); }
 
-.parse-btn { width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; transition: opacity 0.15s; }
+.parse-btn { width: 100%; margin-top: 12px; padding: 11px; font-size: 12px; font-weight: 700; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; transition: opacity 0.15s; letter-spacing: 0.04em; }
 .parse-btn:hover { opacity: 0.88; }
 .parse-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -113,19 +131,19 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .main { padding: 0 24px 40px; }
 
 /* SUMMARY CARDS */
-.section-label { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; margin-top: 20px; }
+.section-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; margin-top: 24px; border-left: 2px solid var(--green); padding-left: 8px; }
 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.metric-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
-.metric-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
-.metric-value { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.metric-label { font-size: 10px; color: var(--text3); margin-bottom: 8px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.metric-value { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; line-height: 1.2; }
 .metric-value.green { color: var(--green); }
 .metric-value.amber { color: var(--amber); }
 .metric-value.red { color: var(--red); }
 .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
 /* CHARTS */
-.chart-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; }
-.chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.chart-title { font-size: 11px; font-weight: 700; color: var(--text3); margin-bottom: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
 .chart-wrap { position: relative; }
 .chart-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
 .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
@@ -133,7 +151,7 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 /* 하단 2열: 도넛 + 테이블 */
 .bottom-row { display: grid; grid-template-columns: 300px 1fr; gap: 12px; margin-bottom: 20px; align-items: stretch; }
 @media (max-width: 780px) { .bottom-row { grid-template-columns: 1fr; } }
-.donut-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; }
+.donut-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
 /* 도넛 범례 상품 목록 */
 .prod-legend-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 12px; }
 .prod-legend-item:last-child { border-bottom: none; }
@@ -144,14 +162,14 @@ body { font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-ser
 .prod-legend-qty { font-size: 11px; color: var(--text3); margin-top: 1px; }
 
 /* TABLES */
-.table-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow); }
 .table-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); overflow-x: auto; }
-.ttab { font-size: 12px; font-weight: 500; padding: 10px 18px; border: none; background: transparent; color: var(--text2); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+.ttab { font-size: 11px; font-weight: 600; padding: 12px 18px; border: none; background: transparent; color: var(--text3); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; letter-spacing: 0.02em; }
 .ttab.active { color: var(--green); border-bottom-color: var(--green); }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { font-size: 10px; font-weight: 600; color: var(--text3); text-align: left; padding: 10px 14px; background: var(--surface2); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
-td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); white-space: nowrap; }
+th { font-size: 10px; font-weight: 700; color: var(--text3); text-align: left; padding: 10px 16px; background: var(--surface2); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+td { padding: 11px 16px; border-top: 1px solid var(--border); color: var(--text); white-space: nowrap; }
 tr:hover td { background: var(--surface2); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
@@ -180,7 +198,7 @@ tr:hover td { background: var(--surface2); }
 /* COST / UPLOAD INPUTS */
 .cost-input { width: 100%; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); }
 .cost-input:focus { outline: none; border-color: var(--green); }
-.cost-add-btn { padding: 7px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; }
+.cost-add-btn { padding: 8px 16px; font-size: 11px; font-weight: 700; border: none; border-radius: var(--radius); background: var(--green); color: #fff; cursor: pointer; letter-spacing: 0.04em; }
 .cost-add-btn:hover { opacity: 0.85; }
 .cost-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--surface2); border-radius: var(--radius); margin-bottom: 5px; font-size: 12px; }
 .cost-item-name { color: var(--text); font-weight: 500; flex: 1; }
@@ -199,10 +217,10 @@ tr:hover td { background: var(--surface2); }
 .fee-edit-cancel { padding: 4px 8px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; }
 
 /* MAIN TABS */
-.main-tabs { display: flex; gap: 2px; }
-.main-tab { font-size: 13px; font-weight: 500; padding: 6px 16px; border: none; border-radius: 8px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-.main-tab.active { background: var(--surface2); color: var(--text); font-weight: 600; }
-.main-tab:hover:not(.active) { color: var(--text); }
+.main-tabs { display: flex; gap: 0; }
+.main-tab { font-size: 13px; font-weight: 500; padding: 0 16px; height: 52px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text3); cursor: pointer; transition: all 0.12s; white-space: nowrap; }
+.main-tab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+.main-tab:hover:not(.active) { color: var(--text2); }
 
 /* REPORT PAGE */
 #reportPage { display: none; padding: 24px; max-width: 860px; margin: 0 auto; }
@@ -215,10 +233,10 @@ tr:hover td { background: var(--surface2); }
 
 /* REPORT SECTIONS */
 .report-section { margin-bottom: 28px; }
-.report-section-title { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
+.report-section-title { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
 
 /* 한줄 요약 카드 */
-.summary-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 10px; }
+.summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 12px; box-shadow: var(--shadow); }
 
 .summary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .stag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
@@ -232,22 +250,22 @@ tr:hover td { background: var(--surface2); }
 @media (max-width: 780px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 480px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 .kpi-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
-.kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
-.kpi-val { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.kpi-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.kpi-val { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; line-height: 1.2; }
 .kpi-val.g { color: var(--green); }
 .kpi-val.a { color: var(--amber); }
 .kpi-val.r { color: var(--red); }
 .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
 
 /* 수수료 분석 테이블 */
-.fee-analysis { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 10px; }
+.fee-analysis { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 10px; box-shadow: var(--shadow); }
 .fee-analysis table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .fee-analysis th { font-size: 10px; font-weight: 600; color: var(--text3); padding: 10px 14px; background: var(--surface2); text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
 .fee-analysis td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); }
 .fee-analysis tr:hover td { background: var(--surface2); }
 
 /* 수익성 바 */
-.profit-bar-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+.profit-bar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); }
 .profit-item { margin-bottom: 16px; }
 .profit-item:last-child { margin-bottom: 0; }
 .profit-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
@@ -262,7 +280,7 @@ tr:hover td { background: var(--surface2); }
 .profit-bar-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 
 /* 월별 비교 */
-.month-compare { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.month-compare { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
 .month-compare table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .month-compare th { font-size: 10px; font-weight: 600; color: var(--text3); padding: 10px 14px; background: var(--surface2); text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
 .month-compare td { padding: 10px 14px; border-top: 0.5px solid var(--border); color: var(--text); }
@@ -278,9 +296,9 @@ tr:hover td { background: var(--surface2); }
 @media (max-width: 540px) { #reportPage { padding: 14px; } .main-tab { font-size: 12px; padding: 5px 12px; } }
 
 /* 손익분기점 */
-.bep-wrap { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.bep-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); }
 .bep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
-.bep-card { background: var(--surface2); border-radius: var(--radius); padding: 14px; }
+.bep-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
 .bep-card-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
 .bep-card-val { font-size: 18px; font-weight: 700; color: var(--text); }
 .bep-card-val.g { color: var(--green); }
@@ -339,7 +357,7 @@ tr:hover td { background: var(--surface2); }
     <div class="login-logo">
       <span>🌸</span>
       <div>
-        아이디어스 정산
+        아이디어스&꽃밥 정산
         <div class="login-subtitle">꽃밥이야기 전용</div>
       </div>
     </div>
@@ -359,7 +377,7 @@ tr:hover td { background: var(--surface2); }
 
 <header class="header">
   <div class="header-logo">
-    <span>🌸</span> 아이디어스
+    <span>🌸</span> 아이디어스&꽃밥
   </div>
   <nav class="main-tabs">
     <button class="main-tab active" id="tab-dashboard" onclick="switchMainTab('dashboard')">📊 대시보드</button>
@@ -379,9 +397,9 @@ tr:hover td { background: var(--surface2); }
   <div class="chart-card">
     <div class="chart-title">월별 매출 추이</div>
     <div class="chart-legend">
-      <div class="leg"><div class="leg-sq" style="background:#378ADD"></div>판매금액</div>
-      <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>정산금액</div>
-      <div class="leg"><div class="leg-sq" style="background:#EF9F27"></div>수수료</div>
+      <div class="leg"><div class="leg-sq" style="background:#8B1A2A"></div>판매금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#9B6A00"></div>정산금액</div>
+      <div class="leg"><div class="leg-sq" style="background:#2C5F8A"></div>수수료</div>
     </div>
     <div class="chart-wrap" style="height:220px"><canvas id="monthlyChart" role="img" aria-label="월별 매출 추이">월별 판매·정산·수수료 차트</canvas></div>
   </div>
@@ -730,9 +748,9 @@ function renderMonthly(monthly) {
     data: {
       labels,
       datasets: [
-        {label:'판매금액', data:monthly.map(m=>m.sales), backgroundColor:'rgba(55,138,221,0.25)', borderColor:'#378ADD', borderWidth:1.5},
-        {label:'정산금액', data:monthly.map(m=>m.settlement), backgroundColor:'rgba(29,158,117,0.25)', borderColor:'#1D9E75', borderWidth:1.5},
-        {label:'수수료',   data:monthly.map(m=>m.fee),        backgroundColor:'rgba(239,159,39,0.25)', borderColor:'#EF9F27', borderWidth:1.5},
+        {label:'판매금액', data:monthly.map(m=>m.sales), backgroundColor:'rgba(139,26,42,0.15)', borderColor:'#8B1A2A', borderWidth:1.5},
+        {label:'정산금액', data:monthly.map(m=>m.settlement), backgroundColor:'rgba(155,106,0,0.15)', borderColor:'#9B6A00', borderWidth:1.5},
+        {label:'수수료',   data:monthly.map(m=>m.fee),        backgroundColor:'rgba(44,95,138,0.15)', borderColor:'#2C5F8A', borderWidth:1.5},
       ]
     },
     options: {
@@ -748,7 +766,7 @@ function renderMonthly(monthly) {
 
 function renderProduct(products) {
   if (charts.product) { charts.product.destroy(); charts.product = null; }
-  const colors = ['#378ADD','#1D9E75','#EF9F27','#D85A30','#B57BDD'];
+  const colors = ['#8B1A2A','#C4394E','#9B6A00','#2C5F8A','#6B4F8A'];
   const total = products.reduce((a,p)=>a+p.sales,0);
 
   // 도넛 차트
