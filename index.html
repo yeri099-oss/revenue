@@ -294,6 +294,10 @@ tr:hover td { background: var(--surface2); }
 /* 순이익률 설명 */
 .margin-explain { background: var(--surface2); border-radius: var(--radius); padding: 14px 16px; margin-top: 14px; font-size: 12px; color: var(--text2); line-height: 1.8; }
 .margin-explain b { color: var(--text); }
+
+/* SUBBAR (연도 필터 전용) */
+.subbar { background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 8px; }
+.subbar-label { font-size: 11px; font-weight: 600; color: var(--text3); margin-right: 4px; letter-spacing: 0.04em; }
 </style>
 </head>
 <body>
@@ -304,14 +308,17 @@ tr:hover td { background: var(--surface2); }
   </div>
   <nav class="main-tabs">
     <button class="main-tab active" id="tab-dashboard" onclick="switchMainTab('dashboard')">📊 대시보드</button>
-    <button class="main-tab" id="tab-manage" onclick="switchMainTab('manage')">⚙️ 관리</button>
     <button class="main-tab" id="tab-report" onclick="switchMainTab('report')">📋 연도별 보고서</button>
+    <button class="main-tab" id="tab-manage" onclick="switchMainTab('manage')">⚙️ 관리</button>
   </nav>
 </header>
 
 <div id="dashboardPage">
+<div class="subbar" id="dashboardSubbar">
+  <span class="subbar-label">연도</span>
+  <div class="year-filter" id="yearFilter"></div>
+</div>
 <main class="main">
-  <div class="year-filter" id="yearFilter" style="margin-bottom:14px"></div>
   <div class="section-label" id="sectionLabel">전체 요약</div>
   <div class="card-grid" id="summaryCards"></div>
 
@@ -341,46 +348,61 @@ tr:hover td { background: var(--surface2); }
 </main>
 </div><!-- /dashboardPage -->
 
-<div id="managePage" style="display:none; padding:20px 24px; max-width:860px">
-  <div class="panel-row" style="margin:0 0 12px">
-    <!-- 상품 관리 -->
-    <div class="panel-box">
-      <div class="panel-header" onclick="togglePanel('costBody','costToggle')">
-        <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>상품 관리</div>
-        <div class="toggle-icon" id="costToggle">▼</div>
-      </div>
-      <div class="panel-body open" id="costBody">
-        <div id="costList"></div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:500">새 상품 원가 추가</div>
-          <div style="display:flex;gap:6px;margin-bottom:6px">
-            <input class="cost-input" id="newCostName" placeholder="상품명 키워드">
-            <input class="cost-input" style="max-width:130px" id="newCostVal" placeholder="세트당 원가(원)" type="number">
-          </div>
-          <button class="cost-add-btn" style="width:100%" onclick="addCostItem()">+ 추가</button>
-          <div id="costAddMsg" style="font-size:11px;color:var(--text3);margin-top:5px;"></div>
-        </div>
-      </div>
+<div id="managePage" style="display:none; padding:20px 24px; max-width:760px">
+
+  <!-- 상품 관리 -->
+  <div class="panel-box" style="margin-bottom:16px">
+    <div class="panel-header" onclick="togglePanel('costBody','costToggle')">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--amber)"></div>상품 관리 <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px">원가 키워드 기반으로 수익성 자동 계산</span></div>
+      <div class="toggle-icon open" id="costToggle">▼</div>
     </div>
-    <!-- 정산서 -->
-    <div class="panel-box">
-      <div class="panel-header" onclick="togglePanel('uploadBody','uploadToggle')">
-        <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>정산서 업로드</div>
-        <div class="toggle-icon" id="uploadToggle">▼</div>
-      </div>
-      <div class="panel-body open" id="uploadBody">
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-          <div class="drop-icon">📂</div>
-          <div class="drop-label"><b>클릭 또는 드래그</b>하여 추가</div>
-          <div class="drop-sub">.xlsx · 여러 파일 동시 가능</div>
-          <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+    <div class="panel-body open" id="costBody">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+        정산서의 작품명에 키워드가 포함되면 해당 원가가 자동 적용돼요.<br>
+        예) 키워드 <b style="color:var(--text)">김부각</b> → 작품명 "꽃밥에피다 귀한 김부각 60g * 3봉"에 자동 매칭
+      </p>
+      <div id="costList"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px">+ 새 상품 원가 추가</div>
+        <div style="display:grid;grid-template-columns:1fr 180px;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">상품명 키워드 <span style="color:var(--red)">*</span></div>
+            <input class="cost-input" id="newCostName" placeholder="예) 김부각, 채개장" style="width:100%">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">세트당 원가 (원) <span style="color:var(--red)">*</span></div>
+            <input class="cost-input" id="newCostVal" placeholder="예) 12900" type="number" style="width:100%">
+          </div>
         </div>
-        <div class="file-list" id="fileList"></div>
-        <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled>📊 정산서 분석하기</button>
-        <div id="parseStatus" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;"></div>
+        <button class="cost-add-btn" style="width:100%;padding:10px" onclick="addCostItem()">+ 추가하기</button>
+        <div id="costAddMsg" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
       </div>
     </div>
   </div>
+
+  <!-- 정산서 업로드 -->
+  <div class="panel-box">
+    <div class="panel-header" onclick="togglePanel('uploadBody','uploadToggle')">
+      <div class="panel-title"><div class="panel-dot" style="background:var(--green)"></div>정산서 업로드 <span style="font-size:11px;font-weight:400;color:var(--text3);margin-left:4px">아이디어스 정산 엑셀 파일 추가</span></div>
+      <div class="toggle-icon open" id="uploadToggle">▼</div>
+    </div>
+    <div class="panel-body open" id="uploadBody">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">
+        아이디어스 정산서 엑셀(.xlsx)을 업로드하고 정산 기간을 지정하면<br>
+        대시보드와 보고서에 자동으로 반영돼요. 여러 파일을 한번에 추가할 수 있어요.
+      </p>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label"><b>클릭 또는 드래그</b>하여 파일 추가</div>
+        <div class="drop-sub">.xlsx 파일 · 여러 파일 동시 업로드 가능</div>
+        <input class="file-input" type="file" id="fileInput" accept=".xlsx" multiple>
+      </div>
+      <div class="file-list" id="fileList"></div>
+      <button class="parse-btn" id="parseBtn" onclick="parseAllFiles()" disabled style="margin-top:12px">📊 정산서 분석하기</button>
+      <div id="parseStatus" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center;"></div>
+    </div>
+  </div>
+
 </div>
 
 <div id="reportPage">
@@ -605,7 +627,12 @@ function renderSummary(d) {
     </div>
     <div class="metric-sub">클릭하여 수정</div>
   </div>`;
-  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard;
+  const calcExplain = `<div style="grid-column:1/-1;background:var(--surface2);border-radius:var(--radius);padding:11px 16px;font-size:12px;color:var(--text2);line-height:1.8;margin-top:2px">
+    <b style="color:var(--text)">💡 실수익 계산 방법</b><br>
+    실수익 = 정산금액 − 월 이용료(₩${fmt(monthlyFee)} × ${d.monthly.length}개월)<br>
+    <span style="color:var(--text3)">※ 원가는 별도 차감되지 않아요. 순수 아이디어스 채널 기준 실수령액이에요.</span>
+  </div>`;
+  document.getElementById('summaryCards').innerHTML = cardHtml + feeCard + calcExplain;
 }
 
 function renderMonthly(monthly) {
@@ -949,6 +976,7 @@ function switchMainTab(tab) {
     if (el) el.classList.toggle('active', tab===t);
   });
   document.getElementById('dashboardPage').classList.toggle('hide', tab!=='dashboard');
+  document.getElementById('dashboardSubbar').style.display = tab==='dashboard' ? '' : 'none';
   document.getElementById('managePage').style.display = tab==='manage' ? 'block' : 'none';
   document.getElementById('reportPage').classList.toggle('show', tab==='report');
   if (tab === 'report') renderReport();
